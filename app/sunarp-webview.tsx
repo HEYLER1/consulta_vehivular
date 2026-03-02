@@ -34,16 +34,32 @@ const INJECT_CSS = `
 (function() {
 
   let meta = document.querySelector('meta[name="viewport"]');
-  if (!meta) {
-    meta = document.createElement('meta');
-    meta.name = 'viewport';
-    document.head.appendChild(meta);
-  }
+  if (!meta) { meta = document.createElement('meta'); meta.name = 'viewport'; document.head.appendChild(meta); }
   meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
 
   const style = document.createElement('style');
   style.innerHTML = \`
 
+    *, *::before, *::after {
+      box-sizing: border-box !important;
+    }
+
+    html {
+      width: 100vw !important;
+      overflow-x: hidden !important;
+    }
+
+    body {
+      background: #F0F2F5 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      overflow-x: hidden !important;
+      font-family: -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+    }
+
+    /* ── Ocultar chrome del sitio ── */
     header, footer, nav,
     .navbar, .footer, .header,
     #header, #footer, #navbar,
@@ -51,115 +67,256 @@ const INJECT_CSS = `
     .page-header, .brand, .logo,
     .alert, .alert-warning, .alert-info,
     [class*="alert"], .aviso, .informacion,
-    .breadcrumb, [class*="breadcrumb"] {
+    .breadcrumb, [class*="breadcrumb"],
+    .top-bar, .site-logo, [class*="logo"],
+    [class*="banner"], [class*="branding"] {
       display: none !important;
     }
 
-    html, body {
-      background: #F3F4F6 !important;
-      margin: 0 !important;
-      padding: 0 !important;
+    /* ── Reset de todos los contenedores ── */
+    div, section, article, main, aside,
+    .container, .container-fluid, .container-sm,
+    .container-md, .container-lg, .container-xl,
+    .wrapper, .wrap, .page-wrapper, .page-wrap,
+    .content, .content-wrapper, .main-content,
+    .inner, .inner-wrapper, .site-content,
+    .row, .col, [class*="col-"],
+    .panel, .panel-body, .panel-default,
+    .card, .card-body, .card-wrapper,
+    .box, .box-body, .form-wrapper,
+    [class*="content"], [class*="wrapper"],
+    [class*="inner"], [class*="panel"],
+    [class*="card"], [class*="section"] {
       width: 100% !important;
-      overflow-x: hidden !important;
-      font-family: -apple-system, 'Segoe UI', Roboto, sans-serif !important;
-    }
-
-    .container, .container-fluid,
-    main, [class*="content"],
-    .panel, .card, .panel-body, .card-body {
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 0 !important;
-      margin: 0 !important;
+      max-width: 100vw !important;
+      min-width: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      float: none !important;
       box-shadow: none !important;
-      border: none !important;
       border-radius: 0 !important;
+      border-left: none !important;
+      border-right: none !important;
       background: transparent !important;
     }
 
+    /* ══════════════════════════════════════
+       FORMULARIO — tarjeta blanca elevada
+    ══════════════════════════════════════ */
+    form {
+      background: #fff !important;
+      margin: 1px 1px 1px 1px !important;
+      width: calc(100vw - 32px) !important;
+      max-width: calc(100vw - 32px) !important;
+      border-radius: 20px !important;
+      padding: 10px 8px 12px 8px !important;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.09) !important;
+    }
+
+    /* Labels */
+    form label,
+    .form-group label,
+    .control-label {
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.6px !important;
+      color: #616161 !important;
+      margin-bottom: 6px !important;
+      display: block !important;
+    }
+
+    /* Grupo de campo */
+    .form-group, form > div {
+      margin-bottom: 14px !important;
+      padding: 0 !important;
+    }
+
+    /* ── Input de placa ── */
     input[type="text"],
     input[type="search"],
     .form-control {
       width: 100% !important;
-      padding: 14px 16px !important;
-      font-size: 18px !important;
-      font-weight: 700 !important;
-      letter-spacing: 3px !important;
+      max-width: 100% !important;
+      padding: 16px 18px !important;
+      font-size: 22px !important;
+      font-weight: 800 !important;
+      letter-spacing: 6px !important;
       text-transform: uppercase !important;
-      border: 2px solid #E0E0E0 !important;
-      border-radius: 12px !important;
-      background: #fff !important;
-      box-sizing: border-box !important;
+      text-align: center !important;
+      border: 2px solid #EEEEEE !important;
+      border-radius: 14px !important;
+      background: #FAFAFA !important;
+      color: #212121 !important;
       -webkit-appearance: none !important;
+    }
+
+    input[type="text"]::placeholder,
+    .form-control::placeholder {
+      color: #BDBDBD !important;
+      letter-spacing: 4px !important;
+      font-weight: 600 !important;
+      font-size: 18px !important;
     }
 
     input[type="text"]:focus,
     .form-control:focus {
       border-color: #C62828 !important;
-      box-shadow: 0 0 0 3px rgba(198,40,40,0.12) !important;
+      background: #fff !important;
+      box-shadow: 0 0 0 4px rgba(198,40,40,0.10) !important;
       outline: none !important;
     }
 
-    button, input[type="submit"],
-    .btn, .btn-default, .btn-primary,
-    [class*="btn"] {
-      width: 100% !important;
-      padding: 14px !important;
-      background: #C62828 !important;
-      color: #fff !important;
-      border: none !important;
-      border-radius: 12px !important;
-      font-size: 15px !important;
-      font-weight: 800 !important;
-      margin-top: 8px !important;
-      box-sizing: border-box !important;
-      -webkit-appearance: none !important;
+    /* ── Recaptcha centrado ── */
+    .g-recaptcha, [class*="captcha"], [class*="recaptcha"] {
+      transform: scale(0.88) !important;
+      transform-origin: center top !important;
+      display: flex !important;
+      justify-content: center !important;
+      margin: 4px auto 0 auto !important;
     }
 
-    /* ── CORRECCION IMAGENES DE RESULTADOS ── */
-    img {
+    /* ══════════════════════════════════════
+       TODOS LOS BOTONES — reales del sitio,
+       sin reemplazar, solo restyling
+    ══════════════════════════════════════ */
+    button,
+    input[type="submit"],
+    input[type="button"],
+    input[type="reset"],
+    a.btn,
+    .btn,
+    [class*="btn"] {
+      display: block !important;
+      width: 100% !important;
       max-width: 100% !important;
+      padding: 17px 20px !important;
+      background: linear-gradient(135deg, #E53935 0%, #C62828 100%) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 14px !important;
+      font-size: 16px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.4px !important;
+      text-align: center !important;
+      text-decoration: none !important;
+      margin-top: 10px !important;
+      cursor: pointer !important;
+      box-shadow: 0 6px 20px rgba(198,40,40,0.35) !important;
+      -webkit-appearance: none !important;
+      /* Mantener el elemento original intacto, solo cambiar apariencia */
+      pointer-events: auto !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+
+    button:active,
+    input[type="submit"]:active,
+    input[type="button"]:active,
+    a.btn:active,
+    .btn:active {
+      transform: scale(0.97) !important;
+      box-shadow: 0 3px 10px rgba(198,40,40,0.30) !important;
+    }
+
+    /* ══════════════════════════════════════
+       RESULTADOS — imagen y tabla
+    ══════════════════════════════════════ */
+    img {
+      max-width: 100vw !important;
+      width: auto !important;
       height: auto !important;
       object-fit: contain !important;
       display: block !important;
     }
 
-    [class*="foto"], [class*="imagen"], [class*="photo"],
-    [class*="result"] img, [class*="vehiculo"] img,
-    table img, .table img, td img {
+    [class*="foto"] img,
+    [class*="imagen"] img,
+    [class*="photo"] img,
+    [class*="vehiculo"] img,
+    [class*="result"] img,
+    table img, td img, th img {
       max-width: 100% !important;
-      width: auto !important;
+      width: 100% !important;
       height: auto !important;
-      max-height: 420px !important;
       object-fit: contain !important;
-      border-radius: 8px !important;
-      margin: 0 auto !important;
+      border-radius: 12px !important;
+    }
+
+    [class*="foto"], [class*="photo"], [class*="imagen"] {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 8px !important;
+      margin: 0 !important;
+      overflow: hidden !important;
     }
 
     table {
       width: 100% !important;
+      max-width: 100vw !important;
       border-collapse: collapse !important;
       table-layout: fixed !important;
       word-wrap: break-word !important;
+      background: #fff !important;
+      margin: 12px 0 !important;
     }
 
     td, th {
-      padding: 1px 2px !important;
+      padding: 11px 12px !important;
       font-size: 13px !important;
       word-break: break-word !important;
       overflow-wrap: break-word !important;
+      border-bottom: 1px solid #F5F5F5 !important;
     }
 
-    [class*="foto"], [class*="photo"], [class*="imagen"] {
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      overflow: hidden !important;
-      padding: 1px !important;
+    tr:last-child td { border-bottom: none !important; }
+    tr:nth-child(even) td { background: #FAFAFA !important; }
+
+    th, td:first-child {
+      font-weight: 700 !important;
+      color: #424242 !important;
+      background: #FFF8F8 !important;
+    }
+
+    th {
+      background: #C62828 !important;
+      color: #fff !important;
+      font-size: 12px !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
     }
 
   \`;
   document.head.appendChild(style);
+
+  /* ── Eliminar width inline que encoge los elementos ── */
+  function stripInlineWidths() {
+    document.querySelectorAll('*').forEach(function(el) {
+      if (el.style) {
+        el.style.removeProperty('width');
+        el.style.removeProperty('max-width');
+        el.style.removeProperty('min-width');
+      }
+    });
+  }
+
+  function init() {
+    stripInlineWidths();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Observar cambios dinámicos
+  const obs = new MutationObserver(function() {
+    stripInlineWidths();
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
 
 })();
 true;
@@ -179,9 +336,6 @@ export default function SunarpWebViewScreen() {
     webViewRef.current?.reload();
   };
 
-  // Boton fisico atras en Android:
-  // 1 presion  → goBack (quedarse en la pagina de resultados / historial)
-  // 2 presiones rapidas → ir a pagina principal
   useEffect(() => {
     if (Platform.OS !== 'android') return;
 
@@ -192,14 +346,12 @@ export default function SunarpWebViewScreen() {
       if (backPressTimer.current) clearTimeout(backPressTimer.current);
 
       if (backPressCount.current === 1) {
-        // Primera presion: retroceder una pagina
         webViewRef.current?.goBack();
         backPressTimer.current = setTimeout(() => {
           backPressCount.current = 0;
         }, 500);
         return true;
       } else {
-        // Segunda presion rapida: ir a pagina principal
         backPressCount.current = 0;
         webViewRef.current?.injectJavaScript(
           "window.location.href = 'https://consultavehicular.sunarp.gob.pe'; true;"
@@ -226,23 +378,7 @@ export default function SunarpWebViewScreen() {
     <SafeAreaView style={styles.container}>
 
       {/* Barra superior */}
-      <View style={styles.topBar}>
-        {canGoBack && (
-          <TouchableOpacity
-            onPress={() => webViewRef.current?.goBack()}
-            style={styles.backBtn}
-          >
-            <Ionicons name="chevron-back" size={22} color="#fff" />
-          </TouchableOpacity>
-        )}
-        <Text style={styles.topTitle} numberOfLines={1}>
-          Consulta Vehicular SUNARP
-        </Text>
-        <TouchableOpacity onPress={reload} style={styles.reloadBtn}>
-          <Ionicons name="refresh" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
+     
       {/* Cloudflare bloqueado */}
       {blocked && (
         <View style={styles.overlay}>
@@ -258,7 +394,6 @@ export default function SunarpWebViewScreen() {
         </View>
       )}
 
-      {/* WebView sin padding */}
       <WebView
         ref={webViewRef}
         source={{ uri: 'https://consultavehicular.sunarp.gob.pe' }}
@@ -291,7 +426,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: ROJO,
   },
-
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -321,13 +455,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'rgba(255,255,255,0.15)',
   },
-
   webview: {
     flex: 1,
-    margin: 0,
-    padding: 0,
   },
-
   overlay: {
     ...StyleSheet.absoluteFillObject,
     top: 52,
