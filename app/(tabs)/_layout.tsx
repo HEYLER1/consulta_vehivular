@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
@@ -10,14 +11,13 @@ import {
 import { StyleSheet, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const ROJO = '#C8102E';
+const ROJO       = '#C8102E';
 const ROJO_OSCURO = '#9B0B21';
-const BLANCO = '#FFFFFF';
-const CREMA = '#FDF6F0';
-const ORO = '#D4AF37';
+const BLANCO     = '#FDF6F0';
+const CREMA      = '#FDF6F0';
+const ORO        = '#D4AF37';
 
 function CustomDrawerContent(props: any) {
-  // ✅ Alto real de la status bar según el dispositivo
   const insets = useSafeAreaInsets();
 
   return (
@@ -31,9 +31,8 @@ function CustomDrawerContent(props: any) {
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={{ paddingTop: 0 }}
-        style={{ backgroundColor: 'transparent' }}
+        style={{ backgroundColor: 'white' }}
       >
-        {/* ✅ paddingTop = insets.top + 16: se adapta a cualquier dispositivo */}
         <View style={[styles.drawerHeader, { paddingTop: insets.top + 16 }]}>
           <View style={styles.shieldOuter}>
             <View style={styles.shieldInner}>
@@ -59,10 +58,9 @@ function CustomDrawerContent(props: any) {
           <DrawerItemList {...props} />
         </View>
 
-        {/* ✅ paddingBottom = insets.bottom + 12: no se corta en iPhone con home indicator */}
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
           <FontAwesome5 name="flag" size={10} color={ROJO} />
-          <Text style={styles.footerText}>  Hecho en Perú 🇵🇪</Text>
+          <Text style={styles.footerText}>  no copyright</Text>
         </View>
       </DrawerContentScrollView>
     </View>
@@ -94,6 +92,7 @@ export default function Layout() {
           },
         }}
       >
+        {/* ── Pantallas visibles en el drawer ── */}
         <Drawer.Screen
           name="index"
           options={{
@@ -154,6 +153,17 @@ export default function Layout() {
             ),
           }}
         />
+
+        {/* ── Pantallas OCULTAS del drawer (sub-pantallas internas) ── */}
+        <Drawer.Screen
+          name="sunarp-webview"
+          options={{
+            drawerLabel: () => null,
+            title: 'Consulta SUNARP',
+            headerShown: false,        // usa su propia barra personalizada
+            drawerItemStyle: { display: 'none' }, // ← oculta del menú
+          }}
+        />
       </Drawer>
     </GestureHandlerRootView>
   );
@@ -175,7 +185,6 @@ const styles = StyleSheet.create({
     width: '33.3%', backgroundColor: ROJO, opacity: 0.08,
   },
 
-  // ⚠️ paddingTop removido aquí — se pasa dinámicamente desde insets
   drawerHeader: {
     backgroundColor: ROJO,
     paddingBottom: 22,
@@ -232,7 +241,6 @@ const styles = StyleSheet.create({
 
   drawerItemsContainer: { paddingHorizontal: 6 },
 
-  // ⚠️ paddingBottom removido — se pasa dinámicamente desde insets
   footer: {
     flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
     paddingTop: 10, marginTop: 10,

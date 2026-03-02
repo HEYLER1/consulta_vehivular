@@ -8,7 +8,7 @@ export default function ServiciosScreen() {
   
   // Función para abrir WhatsApp (Simulando un número oficial)
   const openWhatsApp = () => {
-    const phoneNumber = '51900000000'; // Sustituir por el número real
+    const phoneNumber = '5191669273'; // Sustituir por el número real
     const message = 'Hola, deseo realizar una consulta sobre trámites vehiculares.';
     const url = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
     

@@ -1,4 +1,5 @@
-// app/vehiculo.tsx
+// app/index.tsx
+// ─── Este archivo ES la pantalla de vehículo (no hay vehiculo.tsx separado) ───
 import React, { useRef, useEffect } from 'react';
 import {
   StyleSheet,
@@ -11,18 +12,20 @@ import {
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
 const { width } = Dimensions.get('window');
 
-// ─── Tipos ──────────────────────────────────────────────────────────────────
+// ─── Tipos ───────────────────────────────────────────────────────────────────
 interface MenuOption {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle: string;
   gradient: [string, string];
   tag?: string;
+  route?: string; // ruta interna de expo-router
 }
 
 interface SectionData {
@@ -32,7 +35,7 @@ interface SectionData {
   items: MenuOption[];
 }
 
-// ─── Datos por categoría ─────────────────────────────────────────────────────
+// ─── Datos por categoría ──────────────────────────────────────────────────────
 const SECTIONS: SectionData[] = [
   {
     label: 'Registro & Propiedad',
@@ -45,6 +48,7 @@ const SECTIONS: SectionData[] = [
         subtitle: 'Datos de tarjeta de propiedad',
         gradient: ['#E53935', '#C62828'],
         tag: 'SUNARP',
+        route: '/sunarp-webview', // ← abre WebView interno
       },
       {
         icon: 'people-outline',
@@ -107,46 +111,28 @@ function AnimatedCard({
   item,
   index,
   delay,
+  onPress,
 }: {
   item: MenuOption;
   index: number;
   delay: number;
+  onPress: () => void;
 }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 400,
-        delay,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 400,
-        delay,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, delay, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 400, delay, useNativeDriver: true }),
     ]).start();
   }, []);
 
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.97,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 4,
-      useNativeDriver: true,
-    }).start();
-  };
+  const handlePressIn  = () =>
+    Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
+  const handlePressOut = () =>
+    Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }).start();
 
   return (
     <Animated.View
@@ -159,23 +145,15 @@ function AnimatedCard({
         activeOpacity={1}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={() => console.log(item.title)}
+        onPress={onPress}
         style={styles.card}
       >
-        {/* Franja de color izquierda */}
-        <View
-          style={[
-            styles.cardAccent,
-            { backgroundColor: item.gradient[0] },
-          ]}
-        />
+        <View style={[styles.cardAccent, { backgroundColor: item.gradient[0] }]} />
 
-        {/* Icono */}
         <View style={[styles.iconWrap, { backgroundColor: item.gradient[0] + '1A' }]}>
           <Ionicons name={item.icon} size={22} color={item.gradient[0]} />
         </View>
 
-        {/* Texto */}
         <View style={styles.cardTextWrap}>
           <View style={styles.cardTitleRow}>
             <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
@@ -190,7 +168,6 @@ function AnimatedCard({
           <ThemedText style={styles.cardSubtitle}>{item.subtitle}</ThemedText>
         </View>
 
-        {/* Flecha */}
         <Ionicons name="chevron-forward" size={18} color="#bbb" style={{ marginRight: 4 }} />
       </TouchableOpacity>
     </Animated.View>
@@ -199,16 +176,21 @@ function AnimatedCard({
 
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 export default function VehiculoScreen() {
+  const router     = useRouter();
   const headerAnim = useRef(new Animated.Value(0)).current;
   const [imgSize, setImgSize] = React.useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
-    Animated.timing(headerAnim, {
-      toValue: 1,
-      duration: 600,
-      useNativeDriver: true,
-    }).start();
+    Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
   }, []);
+
+  const handleCardPress = (item: MenuOption) => {
+    if (item.route) {
+      router.push(item.route as any);
+    } else {
+      console.log(item.title);
+    }
+  };
 
   let cardDelay = 100;
 
@@ -236,7 +218,6 @@ export default function VehiculoScreen() {
           ]}
         >
           <View style={styles.headerBg}>
-            {/* Imagen centrada y autoajustable */}
             <Image
               source={require('@/assets/images/imagecar.jpg')}
               style={[
@@ -244,8 +225,7 @@ export default function VehiculoScreen() {
                 imgSize
                   ? {
                       height:
-                        (Dimensions.get('window').width * imgSize.height) /
-                        imgSize.width,
+                        (Dimensions.get('window').width * imgSize.height) / imgSize.width,
                     }
                   : undefined,
               ]}
@@ -257,15 +237,12 @@ export default function VehiculoScreen() {
                 })
               }
             />
-
-           
           </View>
         </Animated.View>
 
         {/* ── Secciones ── */}
         {SECTIONS.map((section) => (
           <View key={section.label} style={styles.section}>
-            {/* Encabezado de sección */}
             <View style={styles.sectionHeader}>
               <View style={[styles.sectionDot, { backgroundColor: section.color }]} />
               <FontAwesome5 name={section.faIcon as any} size={13} color={section.color} />
@@ -274,13 +251,18 @@ export default function VehiculoScreen() {
               </ThemedText>
             </View>
 
-            {/* Cards */}
             <View style={styles.cardGroup}>
               {section.items.map((item, idx) => {
                 const delay = cardDelay;
                 cardDelay += 80;
                 return (
-                  <AnimatedCard key={item.title} item={item} index={idx} delay={delay} />
+                  <AnimatedCard
+                    key={item.title}
+                    item={item}
+                    index={idx}
+                    delay={delay}
+                    onPress={() => handleCardPress(item)}
+                  />
                 );
               })}
             </View>
@@ -295,11 +277,9 @@ export default function VehiculoScreen() {
 
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container:     { flex: 1 },
   scrollContent: { paddingHorizontal: 3, paddingTop: 16, paddingBottom: 20 },
 
-  // Header
-  
   header: { marginBottom: 4 },
   headerBg: {
     borderRadius: 20,
@@ -338,7 +318,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Section
   section: { marginBottom: 20 },
   sectionHeader: {
     flexDirection: 'row',
@@ -347,10 +326,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingLeft: 4,
   },
-  sectionDot: { width: 6, height: 6, borderRadius: 3 },
+  sectionDot:   { width: 6, height: 6, borderRadius: 3 },
   sectionLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
 
-  // Card group
   cardGroup: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -361,7 +339,6 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
 
-  // Card
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -386,14 +363,9 @@ const styles = StyleSheet.create({
   },
   cardTextWrap: { flex: 1 },
   cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 },
-  cardTitle: { fontSize: 14, fontWeight: '700', color: '#1a1a1a', flex: 1 },
+  cardTitle:    { fontSize: 14, fontWeight: '700', color: '#1a1a1a', flex: 1 },
   cardSubtitle: { fontSize: 12, color: '#888', lineHeight: 16 },
 
-  // Tag
-  tag: {
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
+  tag:     { borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
   tagText: { fontSize: 10, fontWeight: '700' },
 });
