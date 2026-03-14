@@ -5,46 +5,82 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
-const OPTIONS = [
+const SECTIONS = [
   {
-    route: '/papeletas/sat',
-    icon: 'business-outline' as const,
-    title: 'Papeletas SAT',
-    subtitle: 'Infracciones en Lima (SAT)',
-    color: '#E53935',
-    bg: '#FFEBEE',
+    label: 'SAT - Servicio de Administración Tributaria',
+    options: [
+      {
+        route: '/papeletas/sat',
+        icon: 'file-document-outline' as const,
+        title: 'Papeletas SAT',
+        subtitle: 'Infracciones de tránsito en Lima',
+        color: '#E53935',
+        bg: '#FFEBEE',
+      },
+      {
+        route: '/papeletas/fotopit',
+        icon: 'camera-outline' as const,
+        title: 'FotoPIT',
+        subtitle: 'Fotomultas por cámaras de control',
+        color: '#E53935',
+        bg: '#FFEBEE',
+      },
+      {
+        route: '/papeletas/orden-captura',
+        icon: 'car-emergency' as const,
+        title: 'Orden de Captura Vehicular',
+        subtitle: 'Vehículos con orden de captura SAT',
+        color: '#E53935',
+        bg: '#FFEBEE',
+      },
+      {
+        route: '/papeletas/internamiento',
+        icon: 'garage' as const,
+        title: 'Internamiento de Vehículos',
+        subtitle: 'Vehículos internados por la SAT',
+        color: '#E53935',
+        bg: '#FFEBEE',
+      },
+    ],
   },
   {
-    route: '/papeletas/sutran',
-    icon: 'checkmark-circle-outline' as const,
-    title: 'Record SUTRAN',
-    subtitle: 'Historial de infracciones en carreteras',
-    color: '#D32F2F',
-    bg: '#FFEBEE',
+    label: 'SUTRAN',
+    options: [
+      {
+        route: '/papeletas/sutran',
+        icon: 'highway' as const,
+        title: 'Record SUTRAN',
+        subtitle: 'Historial de infracciones en carreteras',
+        color: '#F57C00',
+        bg: '#FFF3E0',
+      },
+    ],
   },
   {
-    route: '/papeletas/monto',
-    icon: 'cash-outline' as const,
-    title: 'Monto de Multas',
-    subtitle: 'Costo actual y descuentos disponibles',
-    color: '#2E7D32',
-    bg: '#E8F5E9',
+    label: 'ATU',
+    options: [
+      {
+        route: '/papeletas/atu',
+        icon: 'bus-outline' as const,
+        title: 'Multas ATU',
+        subtitle: 'Infracciones de transporte urbano',
+        color: '#1565C0',
+        bg: '#E3F2FD',
+      },
+    ],
   },
   {
-    route: '/papeletas/atu',
-    icon: 'bus-outline' as const,
-    title: 'Multas ATU',
-    subtitle: 'Infracciones de transporte urbano',
-    color: '#1565C0',
-    bg: '#E3F2FD',
-  },
-  {
-    route: '/papeletas/fotopit',
-    icon: 'camera-outline' as const,
-    title: 'FotoPIT',
-    subtitle: 'Fotomultas por cámaras de control',
-    color: '#37474F',
-    bg: '#ECEFF1',
+    label: 'General',
+    options: [
+      {
+        route: '/papeletas/monto',
+        icon: 'cash-outline' as const,
+        title: 'Monto de Multas',
+        subtitle: 'Costo actual y descuentos disponibles',
+        color: '#2E7D32',
+        bg: '#E8F5E9',
+      },
+    ],
   },
 ];
 
@@ -69,34 +105,35 @@ export default function PapeletasScreen() {
           </ThemedText>
         </View>
 
-        {/* Cards */}
-        <View style={styles.menuList}>
-          {OPTIONS.map((opt) => (
-            <TouchableOpacity
-              key={opt.route}
-              style={styles.optionCard}
-              activeOpacity={0.75}
-              onPress={() => router.push(opt.route as any)}
-            >
+        {/* Sections */}
+        {SECTIONS.map((section) => (
+          <View key={section.label} style={styles.section}>
+            <ThemedText style={styles.sectionLabel}>{section.label}</ThemedText>
+            <View style={styles.menuList}>
+              {section.options.map((opt) => (
+                <TouchableOpacity
+                  key={opt.route}
+                  style={styles.optionCard}
+                  activeOpacity={0.75}
+                  onPress={() => router.push(opt.route as any)}
+                >
                   <View style={[styles.iconBox, { backgroundColor: opt.bg }]}>
-                  {MaterialCommunityIcons.hasOwnProperty(opt.icon) ? (
                     <MaterialCommunityIcons name={opt.icon as any} size={24} color={opt.color} />
-                  ) : (
-                    <MaterialCommunityIcons name="alert-circle-outline" size={24} color="#FF0000" />
-                  )}
                   </View>
-              <View style={styles.textContainer}>
-                <ThemedText style={[styles.optionTitle, { color: '#1A1A1A' }]}>
-                  {opt.title}
-                </ThemedText>
-                <ThemedText style={styles.optionSubtitle}>{opt.subtitle}</ThemedText>
-              </View>
-              <View style={[styles.chevronBox, { backgroundColor: opt.bg }]}>
-                <Ionicons name="chevron-forward" size={16} color={opt.color} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+                  <View style={styles.textContainer}>
+                    <ThemedText style={[styles.optionTitle, { color: '#1A1A1A' }]}>
+                      {opt.title}
+                    </ThemedText>
+                    <ThemedText style={styles.optionSubtitle}>{opt.subtitle}</ThemedText>
+                  </View>
+                  <View style={[styles.chevronBox, { backgroundColor: opt.bg }]}>
+                    <Ionicons name="chevron-forward" size={16} color={opt.color} />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
       </ScrollView>
     </ThemedView>
   );
@@ -133,7 +170,19 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingHorizontal: 20,
   },
-  menuList: { gap: 12 },
+  section: {
+    marginBottom: 20,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    color: '#888',
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  menuList: { gap: 10 },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
