@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, View, TextInput, FlatList } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
-// Lista de ciudades principales de Perú para el buscador
 const CIUDADES = [
-  { id: '1', nombre: 'Arequipa', region: 'Sierra Sur' },
-  { id: '2', nombre: 'Cusco', region: 'Sierra Sur' },
-  { id: '3', nombre: 'Trujillo', region: 'Costa Norte' },
-  { id: '4', nombre: 'Piura', region: 'Costa Norte' },
-  { id: '5', nombre: 'Chiclayo', region: 'Costa Norte' },
-  { id: '6', nombre: 'Iquitos', region: 'Selva Norte' },
-  { id: '7', nombre: 'Huancayo', region: 'Sierra Central' },
-  { id: '8', nombre: 'Tacna', region: 'Costa Sur' },
-  { id: '9', nombre: 'Puno', region: 'Sierra Sur' },
+  { id: '1', nombre: 'Arequipa', region: 'Sierra Sur',     ruta: '/municipales/arequipa' },
+  { id: '2', nombre: 'Cusco',    region: 'Sierra Sur',     ruta: '/municipales/cusco' },
+  { id: '3', nombre: 'Trujillo', region: 'Costa Norte',    ruta: '/municipales/trujillo' },
+  { id: '4', nombre: 'Piura',    region: 'Costa Norte',    ruta: '/municipales/piura' },
+  { id: '5', nombre: 'Chiclayo', region: 'Costa Norte',    ruta: '/municipales/chiclayo' },
+  { id: '6', nombre: 'Iquitos',  region: 'Selva Norte',    ruta: '/municipales/iquitos' },
+  { id: '7', nombre: 'Huancayo', region: 'Sierra Central', ruta: '/municipales/huancayo' },
+  { id: '8', nombre: 'Tacna',    region: 'Costa Sur',      ruta: '/municipales/tacna' },
+  { id: '9', nombre: 'Puno',     region: 'Sierra Sur',     ruta: '/municipales/puno' },
 ];
 
 export default function MunicipalesScreen() {
@@ -25,21 +24,14 @@ export default function MunicipalesScreen() {
 
   const handleSearch = (text: string) => {
     setSearch(text);
-    const filtered = CIUDADES.filter(c => 
+    const filtered = CIUDADES.filter(c =>
       c.nombre.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredCiudades(filtered);
   };
 
-  const handleCityPress = (ciudad: typeof CIUDADES[0]) => {
-    router.push({
-      pathname: '/multas-ciudad',
-      params: {
-        id: ciudad.id,
-        nombre: ciudad.nombre,
-        region: ciudad.region,
-      },
-    });
+  const handleCityPress = (ciudad: (typeof CIUDADES)[0]) => {
+    router.push(ciudad.ruta as any);
   };
 
   return (
@@ -50,15 +42,17 @@ export default function MunicipalesScreen() {
           <MaterialCommunityIcons name="city-variant-outline" size={35} color="white" />
         </View>
         <ThemedText type="title" style={styles.title}>Multas Municipales</ThemedText>
-        <ThemedText style={styles.subtitle}>Selecciona la ciudad para consultar arbitrios o multas locales</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Selecciona la ciudad para consultar arbitrios o multas locales
+        </ThemedText>
       </View>
 
       {/* Buscador */}
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color="#666" style={{ marginRight: 10 }} />
-          <TextInput 
-            placeholder="Buscar ciudad (Ej: Trujillo...)" 
+          <TextInput
+            placeholder="Buscar ciudad (Ej: Trujillo...)"
             style={styles.input}
             value={search}
             onChangeText={handleSearch}
@@ -69,7 +63,7 @@ export default function MunicipalesScreen() {
       {/* Lista de Ciudades */}
       <FlatList
         data={filteredCiudades}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -81,7 +75,9 @@ export default function MunicipalesScreen() {
               <Ionicons name="location-outline" size={22} color="#D32F2F" />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText type="defaultSemiBold" style={{ color: '#333' }}>{item.nombre}</ThemedText>
+              <ThemedText type="defaultSemiBold" style={{ color: '#333' }}>
+                {item.nombre}
+              </ThemedText>
               <ThemedText style={{ fontSize: 12, color: '#888' }}>{item.region}</ThemedText>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#ccc" />
@@ -149,5 +145,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  empty: { textAlign: 'center', marginTop: 20, opacity: 0.5 }
+  empty: { textAlign: 'center', marginTop: 20, opacity: 0.5 },
 });
