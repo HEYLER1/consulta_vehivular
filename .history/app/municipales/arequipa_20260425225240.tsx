@@ -8,7 +8,7 @@ import { WebView } from 'react-native-webview';
 const CIUDAD = {
   nombre: 'Arequipa',
   region: 'Sierra Sur',
-  url: 'https://www.muniarequipa.gob.pe/',
+  url: 'https://www.muniarequipa.gob.pe/oficina-virtual/c0nInfrPermisos/faltas/papeletas.php',
 };
 
 export default function ArequipaScreen() {

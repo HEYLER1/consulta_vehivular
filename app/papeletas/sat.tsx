@@ -1,12 +1,12 @@
 // papeletas/sat.tsx
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 const SAT_URL =
-  'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx?mysession=%2fkXttmyGbVj%2fYllStZjGaL2v7qNC8DAcKg8Vrrm7S68%3d';
+  'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx?mysession=ctyOpc97k9I2Oo0TSsT%2fycAs%2fnt41gNGCvnbaCaJLQQ%3d';
 
 const INJECTED_JS = `
 (function() {
