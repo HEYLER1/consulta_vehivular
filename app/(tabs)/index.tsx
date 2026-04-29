@@ -1,31 +1,28 @@
 // app/index.tsx
-// ─── Este archivo ES la pantalla de vehículo (no hay vehiculo.tsx separado) ───
-import React, { useRef, useEffect } from 'react';
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  TouchableOpacity,
-  Animated,
-  Dimensions,
-} from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import {
+  Animated,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-// ─── Tipos ───────────────────────────────────────────────────────────────────
 interface MenuOption {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle: string;
   gradient: [string, string];
   tag?: string;
-  route?: string; // ruta interna de expo-router
+  route?: string;
 }
 
 interface SectionData {
@@ -35,32 +32,60 @@ interface SectionData {
   items: MenuOption[];
 }
 
-// ─── Datos por categoría ──────────────────────────────────────────────────────
 const SECTIONS: SectionData[] = [
+  {
+    label: 'Consultas Generales',
+    faIcon: 'car',
+    color: '#1565C0',
+    items: [
+      {
+        icon: 'search-outline',
+        title: 'Consulta Vehicular SUNARP',
+        subtitle: 'Datos de tarjeta de propiedad',
+        gradient: ['#1E88E5', '#1565C0'],
+        tag: 'SUNARP',
+        route: '/sunarp-webview', // ← ruta existente preservada
+      },
+      {
+        icon: 'receipt-outline',
+        title: 'Impuesto Vehicular',
+        subtitle: 'Consulta tu deuda de impuesto vehicular',
+        gradient: ['#43A047', '#2E7D32'],
+        tag: 'SAT',
+      },
+      {
+        icon: 'shield-checkmark-outline',
+        title: 'Consulta de SOAT',
+        subtitle: 'Verifica la vigencia de tu SOAT',
+        gradient: ['#F57C00', '#E65100'],
+        tag: 'APESEG',
+      },
+    ],
+  },
   {
     label: 'Registro & Propiedad',
     faIcon: 'file-alt',
     color: '#C62828',
     items: [
       {
-        icon: 'search-outline',
-        title: 'Consulta Vehicular SUNARP',
-        subtitle: 'Datos de tarjeta de propiedad',
+        icon: 'people-outline',
+        title: 'Historial de Propietarios SUNARP',
+        subtitle: 'Antecedentes y propietarios registrados',
         gradient: ['#E53935', '#C62828'],
         tag: 'SUNARP',
-        route: '/sunarp-webview', // ← abre WebView interno
-      },
-      {
-        icon: 'people-outline',
-        title: 'Historial de Dueños y Gravámenes',
-        subtitle: 'Antecedentes y propietarios registrados',
-        gradient: ['#1E88E5', '#1565C0'],
       },
       {
         icon: 'cash-outline',
         title: 'Precio Pagado del Vehículo',
         subtitle: 'Valor de última transferencia',
         gradient: ['#43A047', '#2E7D32'],
+      },
+      {
+        icon: 'document-text-outline',
+        title: 'Anotaciones SUNARP',
+        subtitle: 'Robo, cambios, embargos y prendas vehiculares',
+        gradient: ['#8E24AA', '#6A1B9A'],
+        tag: 'SUNARP',
       },
     ],
   },
@@ -80,7 +105,7 @@ const SECTIONS: SectionData[] = [
         icon: 'hammer-outline',
         title: 'Inspección Técnica (CITV)',
         subtitle: 'Estado de revisiones técnico-vehiculares',
-        gradient: ['#8E24AA', '#6A1B9A'],
+        gradient: ['#546E7A', '#37474F'],
       },
     ],
   },
