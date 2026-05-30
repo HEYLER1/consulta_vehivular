@@ -1,136 +1,112 @@
-import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+// app/(tabs)/seguridad.tsx
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ScrollView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+
+const AZUL_MTC = '#002B5C';
+const ORO_PLACA = '#FFD600';
+const BLANCO = '#FFFFFF';
+const GRIS_FONDO = '#F4F7F9';
+const TEXTO_MENU = '#1A1A2E';
+
+const OPTIONS = [
+  {
+    icon: 'car-wash',
+    title: 'Lunas Polarizadas',
+    subtitle: 'Consulta de estado y vigencia PNP',
+    color: AZUL_MTC,
+  },
+  {
+    icon: 'shield-search',
+    title: 'Requisitorias por Robo',
+    subtitle: 'Verificar orden de captura policial',
+    color: '#C62828',
+  },
+  {
+    icon: 'file-document-edit-outline',
+    title: 'Denuncias Policiales',
+    subtitle: 'Copia certificada de denuncias por pérdida',
+    color: '#455A64',
+  },
+];
 
 export default function SeguridadScreen() {
+  const router = useRouter();
+
   return (
     <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <StatusBar barStyle="light-content" />
+      
+      <View style={styles.heroBanner}>
+        <MaterialCommunityIcons name="police-badge" size={48} color={ORO_PLACA} />
+        <View style={{ flex: 1 }}>
+          <ThemedText style={styles.heroTitle}>Seguridad PNP</ThemedText>
+          <ThemedText style={styles.heroSubtitle}>Trámites y alertas de la Policía Nacional</ThemedText>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ThemedText style={styles.sectionLabel}>Consultas de Autoridad</ThemedText>
         
-        {/* Cabecera */}
-        <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name="police-badge" size={40} color="white" />
-          </View>
-          <ThemedText type="title" style={styles.title}>Seguridad y Trámites PNP</ThemedText>
-          <ThemedText style={styles.subtitle}>Consultas oficiales de la Policía Nacional del Perú</ThemedText>
+        <View style={styles.cardContainer}>
+          {OPTIONS.map((item, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[styles.optionCard, index === OPTIONS.length - 1 && { borderBottomWidth: 0 }]}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.iconBox, { backgroundColor: item.color + '10' }]}>
+                <MaterialCommunityIcons name={item.icon as any} size={26} color={item.color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <ThemedText style={styles.optionTitle}>{item.title}</ThemedText>
+                <ThemedText style={styles.optionSubtitle}>{item.subtitle}</ThemedText>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#B0BEC5" />
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Lista de Opciones */}
-        <View style={styles.menuList}>
-          
-          <OptionItem 
-            icon="car-outline" 
-            title="Consulta lunas polarizadas" 
-            subtitle="Estado de permiso ante la PNP"
-            color="#1A237E" // Azul Oscuro Policial
-          />
-
-          <OptionItem 
-            icon="shield-search" 
-            title="Requisitorias por robo" 
-            subtitle="Verificar si el vehículo tiene orden de captura"
-            color="#C62828" // Rojo Alerta
-          />
-
-          <OptionItem 
-            icon="document-text-outline" 
-            title="Denuncias policiales" 
-            subtitle="Copia certificada de denuncias por pérdida"
-            color="#455A64" // Gris Autoridad
-          />
-
-        </View>
-
-        {/* Bloque de Información de Ayuda */}
         <View style={styles.infoBox}>
-          <View style={styles.infoIcon}>
-            <Ionicons name="information-circle" size={24} color="#1A237E" />
-          </View>
+          <Ionicons name="information-circle" size={24} color={AZUL_MTC} />
           <View style={{ flex: 1 }}>
-            <ThemedText type="defaultSemiBold" style={styles.infoTitle}>
-              Recuerda
-            </ThemedText>
+            <ThemedText style={styles.infoTitle}>DATO OFICIAL</ThemedText>
             <ThemedText style={styles.infoText}>
-              El permiso de lunas oscurecidas o polarizadas ahora es de vigencia indeterminada y está vinculado al vehículo.
+              El permiso de lunas oscurecidas ahora tiene vigencia indeterminada y está vinculado directamente al número de placa.
             </ThemedText>
           </View>
         </View>
-
       </ScrollView>
     </ThemedView>
   );
 }
 
-function OptionItem({ icon, title, subtitle, color }: any) {
-  return (
-    <TouchableOpacity style={styles.optionCard} activeOpacity={0.7}>
-      <View style={[styles.iconBox, { backgroundColor: color }]}>
-        <MaterialCommunityIcons name={icon} size={24} color="white" />
-      </View>
-      <View style={styles.textContainer}>
-        <ThemedText type="defaultSemiBold" style={styles.optionTitle}>{title}</ThemedText>
-        <ThemedText style={styles.optionSubtitle}>{subtitle}</ThemedText>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color="#ccc" />
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: GRIS_FONDO },
+  heroBanner: {
+    backgroundColor: AZUL_MTC,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  heroTitle: { color: BLANCO, fontSize: 22, fontWeight: '900', letterSpacing: -0.5 },
+  heroSubtitle: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '600' },
   scrollContent: { padding: 20 },
-  header: {
-    alignItems: 'center',
-    marginBottom: 30,
-    marginTop: 10,
-  },
-  iconCircle: {
-    width: 75,
-    height: 75,
-    borderRadius: 38,
-    backgroundColor: '#1A237E',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    elevation: 4,
-  },
-  title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
-  subtitle: { opacity: 0.6, fontSize: 14, textAlign: 'center', marginTop: 5 },
-  menuList: { gap: 12 },
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 18,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-  },
-  iconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  textContainer: { flex: 1 },
-  optionTitle: { fontSize: 15, color: '#333' },
-  optionSubtitle: { fontSize: 12, color: '#888', marginTop: 2 },
-  infoBox: {
-    marginTop: 30,
-    flexDirection: 'row',
-    backgroundColor: '#E8EAF6',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'flex-start',
-  },
-  infoIcon: { marginRight: 12, marginTop: 2 },
-  infoTitle: { color: '#1A237E', fontSize: 14 },
-  infoText: { fontSize: 12, color: '#3949AB', marginTop: 4, lineHeight: 18 },
+  sectionLabel: { fontSize: 13, fontWeight: '800', color: '#546E7A', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 15 },
+  cardContainer: { backgroundColor: BLANCO, borderRadius: 20, elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, overflow: 'hidden' },
+  optionCard: { flexDirection: 'row', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderBottomColor: '#F1F3F4' },
+  iconBox: { width: 50, height: 50, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  optionTitle: { fontSize: 15, fontWeight: '800', color: TEXTO_MENU },
+  optionSubtitle: { fontSize: 11, color: '#78909C', marginTop: 3, fontWeight: '600' },
+  infoBox: { marginTop: 25, backgroundColor: '#E1F5FE', padding: 20, borderRadius: 20, flexDirection: 'row', gap: 12 },
+  infoTitle: { color: '#0277BD', fontSize: 12, fontWeight: '900', letterSpacing: 1, marginBottom: 4 },
+  infoText: { color: '#01579B', fontSize: 12, lineHeight: 18, fontWeight: '500' },
 });

@@ -1,396 +1,377 @@
-// app/index.tsx
+// app/(tabs)/index.tsx
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
   Animated,
   Dimensions,
-  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
+  StatusBar
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
+// ── Paleta Identidad Vehicular Perú ───────────────────────────────────────────
+const AZUL_MTC       = '#002B5C'; // Azul institucional profundo
+const ORO_PLACA      = '#FFD600'; // Amarillo intenso de la Placa Nacional
+const GRIS_FONDO     = '#F4F7F9';
+const BLANCO         = '#FFFFFF';
+const TEXTO_TITULO   = '#1A1A2E';
+
 interface MenuOption {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
   subtitle: string;
-  gradient: [string, string];
+  color: string;
   tag?: string;
   route?: string;
 }
 
-interface SectionData {
-  label: string;
-  faIcon: string;
-  color: string;
-  items: MenuOption[];
-}
+const QUICK_ACTIONS: MenuOption[] = [
+  {
+    icon: 'magnify-expand',
+    title: 'Consulta SUNARP',
+    subtitle: 'Datos de propiedad',
+    color: AZUL_MTC,
+    route: '/sunarp-webview',
+    tag: 'OFICIAL'
+  },
+  {
+    icon: 'shield-check',
+    title: 'SOAT Vigente',
+    subtitle: 'Consulta APESEG',
+    color: '#2E7D32',
+    tag: 'ALERTA'
+  },
+];
 
-const SECTIONS: SectionData[] = [
+const SECTIONS = [
   {
-    label: 'Consultas Generales',
-    faIcon: 'car',
-    color: '#1565C0',
+    label: 'Registros Oficiales',
     items: [
       {
-        icon: 'search-outline',
-        title: 'Consulta Vehicular SUNARP',
-        subtitle: 'Datos de tarjeta de propiedad',
-        gradient: ['#1E88E5', '#1565C0'],
-        tag: 'SUNARP',
-        route: '/sunarp-webview', // ← ruta existente preservada
-      },
-      {
-        icon: 'receipt-outline',
+        icon: 'card-account-details-outline',
         title: 'Impuesto Vehicular',
-        subtitle: 'Consulta tu deuda de impuesto vehicular',
-        gradient: ['#43A047', '#2E7D32'],
-        tag: 'SAT',
+        subtitle: 'Deudas pendientes en el SAT',
+        color: AZUL_MTC,
       },
       {
-        icon: 'shield-checkmark-outline',
-        title: 'Consulta de SOAT',
-        subtitle: 'Verifica la vigencia de tu SOAT',
-        gradient: ['#F57C00', '#E65100'],
-        tag: 'APESEG',
-      },
-    ],
-  },
-  {
-    label: 'Registro & Propiedad',
-    faIcon: 'file-alt',
-    color: '#C62828',
-    items: [
-      {
-        icon: 'people-outline',
-        title: 'Historial de Propietarios SUNARP',
-        subtitle: 'Antecedentes y propietarios registrados',
-        gradient: ['#E53935', '#C62828'],
-        tag: 'SUNARP',
+        icon: 'history',
+        title: 'Historial de Propietarios',
+        subtitle: 'Transferencias registradas',
+        color: AZUL_MTC,
       },
       {
-        icon: 'cash-outline',
-        title: 'Precio Pagado del Vehículo',
-        subtitle: 'Valor de última transferencia',
-        gradient: ['#43A047', '#2E7D32'],
-      },
-      {
-        icon: 'document-text-outline',
-        title: 'Anotaciones SUNARP',
-        subtitle: 'Robo, cambios, embargos y prendas vehiculares',
-        gradient: ['#8E24AA', '#6A1B9A'],
-        tag: 'SUNARP',
+        icon: 'alert-decagram-outline',
+        title: 'Gravámenes y Embargos',
+        subtitle: 'Cargas sobre el vehículo',
+        color: '#C62828',
       },
     ],
   },
   {
-    label: 'Trámites Oficiales',
-    faIcon: 'exchange-alt',
-    color: '#F57F17',
+    label: 'Servicios Técnicos',
     items: [
       {
-        icon: 'swap-horizontal-outline',
-        title: 'Cambio de Placa',
-        subtitle: 'Tramita tu nueva placa nacional',
-        gradient: ['#FFB300', '#F57F17'],
-        tag: 'Trámite',
+        icon: 'tools',
+        title: 'Revisión Técnica',
+        subtitle: 'Estado del CITV vigente',
+        color: '#455A64',
       },
       {
-        icon: 'hammer-outline',
-        title: 'Inspección Técnica (CITV)',
-        subtitle: 'Estado de revisiones técnico-vehiculares',
-        gradient: ['#546E7A', '#37474F'],
-      },
-    ],
-  },
-  {
-    label: 'Gas Natural (GNV)',
-    faIcon: 'fire',
-    color: '#E64A19',
-    items: [
-      {
-        icon: 'flame-outline',
-        title: 'Vigencia GNV',
-        subtitle: 'Certificación de gas natural vigente',
-        gradient: ['#F4511E', '#BF360C'],
-        tag: 'Certificado',
-      },
-      {
-        icon: 'card-outline',
-        title: 'Deuda GNV',
-        subtitle: 'Pagos pendientes de carga de gas',
-        gradient: ['#546E7A', '#37474F'],
+        icon: 'gas-station',
+        title: 'Certificación GNV/GLP',
+        subtitle: 'Vigencia de chips de gas',
+        color: '#E64A19',
       },
     ],
   },
 ];
 
-// ─── Componente AnimatedCard ──────────────────────────────────────────────────
-function AnimatedCard({
-  item,
-  index,
-  delay,
-  onPress,
-}: {
-  item: MenuOption;
-  index: number;
-  delay: number;
-  onPress: () => void;
-}) {
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, delay, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 400, delay, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  const handlePressIn  = () =>
-    Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
-  const handlePressOut = () =>
-    Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }).start();
-
-  return (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
-      }}
-    >
-      <TouchableOpacity
-        activeOpacity={1}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={onPress}
-        style={styles.card}
-      >
-        <View style={[styles.cardAccent, { backgroundColor: item.gradient[0] }]} />
-
-        <View style={[styles.iconWrap, { backgroundColor: item.gradient[0] + '1A' }]}>
-          <Ionicons name={item.icon} size={22} color={item.gradient[0]} />
-        </View>
-
-        <View style={styles.cardTextWrap}>
-          <View style={styles.cardTitleRow}>
-            <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
-            {item.tag && (
-              <View style={[styles.tag, { backgroundColor: item.gradient[0] + '22' }]}>
-                <ThemedText style={[styles.tagText, { color: item.gradient[0] }]}>
-                  {item.tag}
-                </ThemedText>
-              </View>
-            )}
-          </View>
-          <ThemedText style={styles.cardSubtitle}>{item.subtitle}</ThemedText>
-        </View>
-
-        <Ionicons name="chevron-forward" size={18} color="#bbb" style={{ marginRight: 4 }} />
-      </TouchableOpacity>
-    </Animated.View>
-  );
-}
-
-// ─── Pantalla principal ───────────────────────────────────────────────────────
 export default function VehiculoScreen() {
-  const router     = useRouter();
-  const headerAnim = useRef(new Animated.Value(0)).current;
-  const [imgSize, setImgSize] = React.useState<{ width: number; height: number } | null>(null);
+  const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(headerAnim, { toValue: 1, duration: 600, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
   }, []);
-
-  const handleCardPress = (item: MenuOption) => {
-    if (item.route) {
-      router.push(item.route as any);
-    } else {
-      console.log(item.title);
-    }
-  };
-
-  let cardDelay = 100;
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ── Header ── */}
-        <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: headerAnim,
-              transform: [
-                {
-                  translateY: headerAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-20, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View style={styles.headerBg}>
-            <Image
-              source={require('@/assets/images/imagecar.jpg')}
-              style={[
-                styles.headerImage,
-                imgSize
-                  ? {
-                      height:
-                        (Dimensions.get('window').width * imgSize.height) / imgSize.width,
-                    }
-                  : undefined,
-              ]}
-              resizeMode="cover"
-              onLoad={(e) =>
-                setImgSize({
-                  width: e.nativeEvent.source.width,
-                  height: e.nativeEvent.source.height,
-                })
-              }
-            />
+      <StatusBar barStyle="light-content" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* ── PLACA VIRTUAL HEADER ── */}
+        <Animated.View style={[styles.placaContainer, { opacity: fadeAnim }]}>
+          <View style={styles.placaHeader}>
+            <View style={styles.placaStrip} />
+            <ThemedText style={styles.placaLabel}>PERÚ</ThemedText>
+            <View style={styles.placaLogoWrap}>
+              <MaterialCommunityIcons name="shield-check" size={24} color={AZUL_MTC} />
+            </View>
+          </View>
+          <View style={styles.placaContent}>
+            <ThemedText style={styles.placaTitle}>CONSULTA</ThemedText>
+            <ThemedText style={styles.placaSubtitle}>DATOS DEL VEHÍCULO</ThemedText>
+          </View>
+          <View style={styles.placaFooter}>
+            <ThemedText style={styles.placaFooterText}>PLACA ÚNICA NACIONAL DE RODAJE</ThemedText>
           </View>
         </Animated.View>
 
-        {/* ── Secciones ── */}
-        {SECTIONS.map((section) => (
-          <View key={section.label} style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionDot, { backgroundColor: section.color }]} />
-              <FontAwesome5 name={section.faIcon as any} size={13} color={section.color} />
-              <ThemedText style={[styles.sectionLabel, { color: section.color }]}>
-                {section.label}
-              </ThemedText>
-            </View>
+        {/* ── ACCIONES RÁPIDAS (ACCESO DIRECTO) ── */}
+        <View style={styles.quickActionsGrid}>
+          {QUICK_ACTIONS.map((item, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={styles.actionCard}
+              onPress={() => item.route && router.push(item.route as any)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: item.color + '15' }]}>
+                <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
+              </View>
+              <ThemedText style={styles.actionTitle}>{item.title}</ThemedText>
+              <ThemedText style={styles.actionSubtitle}>{item.subtitle}</ThemedText>
+              {item.tag && (
+                <View style={[styles.actionTag, { backgroundColor: item.color }]}>
+                  <ThemedText style={styles.actionTagText}>{item.tag}</ThemedText>
+                </View>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
 
-            <View style={styles.cardGroup}>
-              {section.items.map((item, idx) => {
-                const delay = cardDelay;
-                cardDelay += 80;
-                return (
-                  <AnimatedCard
-                    key={item.title}
-                    item={item}
-                    index={idx}
-                    delay={delay}
-                    onPress={() => handleCardPress(item)}
-                  />
-                );
-              })}
+        {/* ── SECCIONES DE DETALLE ── */}
+        {SECTIONS.map((section, sIdx) => (
+          <View key={sIdx} style={styles.sectionContainer}>
+            <ThemedText style={styles.sectionLabel}>{section.label}</ThemedText>
+            <View style={styles.listCard}>
+              {section.items.map((item, iIdx) => (
+                <TouchableOpacity 
+                  key={iIdx} 
+                  style={[styles.listItem, iIdx === section.items.length - 1 && { borderBottomWidth: 0 }]}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.listIconBox, { backgroundColor: item.color + '10' }]}>
+                    <MaterialCommunityIcons name={item.icon as any} size={20} color={item.color} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <ThemedText style={styles.listTitle}>{item.title}</ThemedText>
+                    <ThemedText style={styles.listSubtitle}>{item.subtitle}</ThemedText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color="#B0BEC5" />
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         ))}
 
-        <View style={{ height: 30 }} />
+        <View style={styles.infoBanner}>
+          <Ionicons name="information-circle" size={18} color={AZUL_MTC} />
+          <ThemedText style={styles.infoText}>
+            La información mostrada proviene de bases de datos públicas oficiales de la República del Perú.
+          </ThemedText>
+        </View>
+
       </ScrollView>
     </ThemedView>
   );
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container:     { flex: 1 },
-  scrollContent: { paddingHorizontal: 3, paddingTop: 16, paddingBottom: 20 },
+  container: { flex: 1, backgroundColor: GRIS_FONDO },
+  scrollContent: { padding: 20, paddingBottom: 40 },
 
-  header: { marginBottom: 4 },
-  headerBg: {
-    borderRadius: 20,
-    backgroundColor: '#B71C1C',
-    alignItems: 'center',
+  // Estilo Placa Única
+  placaContainer: {
+    backgroundColor: BLANCO,
+    borderRadius: 12,
+    borderWidth: 4,
+    borderColor: AZUL_MTC,
     overflow: 'hidden',
+    marginBottom: 25,
     elevation: 8,
-    shadowColor: '#B71C1C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
-  headerImage: {
-    width: '100%',
-    height: undefined,
-    aspectRatio: undefined,
-    flexShrink: 1,
-    alignSelf: 'center',
-  },
-  headerTextBlock: {
-    alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#fff',
-    letterSpacing: 0.3,
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.75)',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-
-  section: { marginBottom: 20 },
-  sectionHeader: {
+  placaHeader: {
+    height: 35,
+    backgroundColor: BLANCO,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 10,
-    paddingLeft: 4,
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  sectionDot:   { width: 6, height: 6, borderRadius: 3 },
-  sectionLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase' },
+  placaStrip: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    height: 4,
+    backgroundColor: ORO_PLACA,
+  },
+  placaLabel: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: AZUL_MTC,
+    letterSpacing: 4,
+  },
+  placaLogoWrap: {
+    position: 'absolute',
+    right: 10,
+  },
+  placaContent: {
+    paddingVertical: 25,
+    alignItems: 'center',
+    backgroundColor: BLANCO,
+  },
+  placaTitle: {
+    fontSize: 42,
+    fontWeight: '900',
+    color: AZUL_MTC,
+    letterSpacing: -1,
+  },
+  placaSubtitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#546E7A',
+    marginTop: -5,
+    letterSpacing: 1,
+  },
+  placaFooter: {
+    backgroundColor: AZUL_MTC,
+    paddingVertical: 6,
+    alignItems: 'center',
+  },
+  placaFooterText: {
+    color: BLANCO,
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
 
-  cardGroup: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 2,
+  // Acciones Rápidas
+  quickActionsGrid: {
+    flexDirection: 'row',
+    gap: 15,
+    marginBottom: 25,
+  },
+  actionCard: {
+    flex: 1,
+    backgroundColor: BLANCO,
+    borderRadius: 20,
+    padding: 16,
+    alignItems: 'center',
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  actionIconBox: {
+    width: 55,
+    height: 55,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: TEXTO_TITULO,
+    textAlign: 'center',
+  },
+  actionSubtitle: {
+    fontSize: 10,
+    color: '#78909C',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  actionTag: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
+  },
+  actionTagText: {
+    color: BLANCO,
+    fontSize: 7,
+    fontWeight: '900',
   },
 
-  card: {
+  // Listas de Secciones
+  sectionContainer: {
+    marginBottom: 25,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#546E7A',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 12,
+    marginLeft: 5,
+  },
+  listCard: {
+    backgroundColor: BLANCO,
+    borderRadius: 20,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    paddingRight: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f0f0f0',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F3F4',
   },
-  cardAccent: {
-    width: 4,
-    alignSelf: 'stretch',
-    marginRight: 12,
-  },
-  iconWrap: {
-    width: 42,
-    height: 42,
+  listIconBox: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 15,
   },
-  cardTextWrap: { flex: 1 },
-  cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 3 },
-  cardTitle:    { fontSize: 14, fontWeight: '700', color: '#1a1a1a', flex: 1 },
-  cardSubtitle: { fontSize: 12, color: '#888', lineHeight: 16 },
+  listTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: TEXTO_TITULO,
+  },
+  listSubtitle: {
+    fontSize: 12,
+    color: '#78909C',
+    marginTop: 1,
+  },
 
-  tag:     { borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  tagText: { fontSize: 10, fontWeight: '700' },
+  infoBanner: {
+    flexDirection: 'row',
+    backgroundColor: '#E1F5FE',
+    padding: 15,
+    borderRadius: 15,
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 11,
+    color: '#0277BD',
+    lineHeight: 16,
+    fontWeight: '500',
+  },
 });
