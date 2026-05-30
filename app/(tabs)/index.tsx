@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -11,8 +11,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  StatusBar
+  StatusBar,
+  TextInput,
+  Alert
 } from 'react-native';
+import { PlateScanner } from '@/components/PlateScanner';
 
 const { width } = Dimensions.get('window');
 
@@ -96,10 +99,17 @@ const SECTIONS = [
 export default function VehiculoScreen() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [placa, setPlaca] = useState('');
+  const [isScannerVisible, setIsScannerVisible] = useState(false);
 
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }).start();
   }, []);
+
+  const handleScanPlate = (detectedPlate: string) => {
+    setPlaca(detectedPlate);
+    Alert.alert("Placa Escaneada", `Se detectó la placa: ${detectedPlate}`);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -116,15 +126,32 @@ export default function VehiculoScreen() {
             </View>
           </View>
           <View style={styles.placaContent}>
-            <ThemedText style={styles.placaTitle}>CONSULTA</ThemedText>
-            <ThemedText style={styles.placaSubtitle}>DATOS DEL VEHÍCULO</ThemedText>
+            <TextInput 
+              style={styles.placaTitle}
+              placeholder="ABC-123"
+              value={placa}
+              onChangeText={setPlaca}
+              autoCapitalize="characters"
+              maxLength={7}
+            />
+            <ThemedText style={styles.placaSubtitle}>TOCA PARA EDITAR PLACA</ThemedText>
           </View>
+          
+          <TouchableOpacity 
+            style={styles.scanBadge} 
+            onPress={() => setIsScannerVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="camera" size={20} color={AZUL_MTC} />
+            <ThemedText style={styles.scanText}>ESCANEAR PLACA</ThemedText>
+          </TouchableOpacity>
+
           <View style={styles.placaFooter}>
             <ThemedText style={styles.placaFooterText}>PLACA ÚNICA NACIONAL DE RODAJE</ThemedText>
           </View>
         </Animated.View>
 
-        {/* ── ACCIONES RÁPIDAS (ACCESO DIRECTO) ── */}
+        {/* ── ACCIONES RÁPIDAS ── */}
         <View style={styles.quickActionsGrid}>
           {QUICK_ACTIONS.map((item, index) => (
             <TouchableOpacity 
@@ -175,11 +202,18 @@ export default function VehiculoScreen() {
         <View style={styles.infoBanner}>
           <Ionicons name="information-circle" size={18} color={AZUL_MTC} />
           <ThemedText style={styles.infoText}>
-            La información mostrada proviene de bases de datos públicas oficiales de la República del Perú.
+            La placa ingresada se usará automáticamente en todas las consultas del sistema.
           </ThemedText>
         </View>
 
       </ScrollView>
+
+      {/* Modal de Escaneo */}
+      <PlateScanner 
+        visible={isScannerVisible}
+        onClose={() => setIsScannerVisible(false)}
+        onPlateDetected={handleScanPlate}
+      />
     </ThemedView>
   );
 }
@@ -188,21 +222,22 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: GRIS_FONDO },
   scrollContent: { padding: 20, paddingBottom: 40 },
 
-  // Estilo Placa Única
   placaContainer: {
     backgroundColor: BLANCO,
-    borderRadius: 12,
-    borderWidth: 4,
+    borderRadius: 15,
+    borderWidth: 5,
     borderColor: AZUL_MTC,
     overflow: 'hidden',
     marginBottom: 25,
-    elevation: 8,
+    elevation: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    alignItems: 'center',
   },
   placaHeader: {
+    width: '100%',
     height: 35,
     backgroundColor: BLANCO,
     flexDirection: 'row',
@@ -215,163 +250,85 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '100%',
-    height: 4,
+    height: 6,
     backgroundColor: ORO_PLACA,
   },
   placaLabel: {
     fontSize: 16,
     fontWeight: '900',
     color: AZUL_MTC,
-    letterSpacing: 4,
+    letterSpacing: 6,
   },
   placaLogoWrap: {
     position: 'absolute',
-    right: 10,
+    right: 12,
   },
   placaContent: {
-    paddingVertical: 25,
+    paddingVertical: 20,
     alignItems: 'center',
-    backgroundColor: BLANCO,
+    width: '100%',
   },
   placaTitle: {
-    fontSize: 42,
+    fontSize: 54,
     fontWeight: '900',
     color: AZUL_MTC,
     letterSpacing: -1,
+    textAlign: 'center',
+    width: '100%',
+    padding: 0,
   },
   placaSubtitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#546E7A',
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#90A4AE',
     marginTop: -5,
-    letterSpacing: 1,
+    letterSpacing: 2,
+  },
+  scanBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: ORO_PLACA,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 20,
+    gap: 8,
+    elevation: 3,
+  },
+  scanText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: AZUL_MTC,
   },
   placaFooter: {
+    width: '100%',
     backgroundColor: AZUL_MTC,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignItems: 'center',
   },
   placaFooterText: {
     color: BLANCO,
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-
-  // Acciones Rápidas
-  quickActionsGrid: {
-    flexDirection: 'row',
-    gap: 15,
-    marginBottom: 25,
-  },
-  actionCard: {
-    flex: 1,
-    backgroundColor: BLANCO,
-    borderRadius: 20,
-    padding: 16,
-    alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  actionIconBox: {
-    width: 55,
-    height: 55,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  actionTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: TEXTO_TITULO,
-    textAlign: 'center',
-  },
-  actionSubtitle: {
     fontSize: 10,
-    color: '#78909C',
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  actionTag: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 5,
-  },
-  actionTagText: {
-    color: BLANCO,
-    fontSize: 7,
-    fontWeight: '900',
-  },
-
-  // Listas de Secciones
-  sectionContainer: {
-    marginBottom: 25,
-  },
-  sectionLabel: {
-    fontSize: 13,
     fontWeight: '800',
-    color: '#546E7A',
-    textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 12,
-    marginLeft: 5,
-  },
-  listCard: {
-    backgroundColor: BLANCO,
-    borderRadius: 20,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F3F4',
-  },
-  listIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  listTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: TEXTO_TITULO,
-  },
-  listSubtitle: {
-    fontSize: 12,
-    color: '#78909C',
-    marginTop: 1,
   },
 
-  infoBanner: {
-    flexDirection: 'row',
-    backgroundColor: '#E1F5FE',
-    padding: 15,
-    borderRadius: 15,
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 11,
-    color: '#0277BD',
-    lineHeight: 16,
-    fontWeight: '500',
-  },
+  quickActionsGrid: { flexDirection: 'row', gap: 15, marginBottom: 25 },
+  actionCard: { flex: 1, backgroundColor: BLANCO, borderRadius: 22, padding: 18, alignItems: 'center', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 6 },
+  actionIconBox: { width: 60, height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  actionTitle: { fontSize: 13, fontWeight: '800', color: TEXTO_TITULO, textAlign: 'center' },
+  actionSubtitle: { fontSize: 10, color: '#78909C', textAlign: 'center', marginTop: 3 },
+  actionTag: { position: 'absolute', top: 12, right: 12, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  actionTagText: { color: BLANCO, fontSize: 8, fontWeight: '900' },
+
+  sectionContainer: { marginBottom: 25 },
+  sectionLabel: { fontSize: 13, fontWeight: '900', color: '#546E7A', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, marginLeft: 5 },
+  listCard: { backgroundColor: BLANCO, borderRadius: 22, overflow: 'hidden', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
+  listItem: { flexDirection: 'row', alignItems: 'center', padding: 18, borderBottomWidth: 1, borderBottomColor: '#F1F3F4' },
+  listIconBox: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  listTitle: { fontSize: 15, fontWeight: '800', color: TEXTO_TITULO },
+  listSubtitle: { fontSize: 12, color: '#78909C', marginTop: 2 },
+
+  infoBanner: { flexDirection: 'row', backgroundColor: '#E1F5FE', padding: 18, borderRadius: 18, alignItems: 'flex-start', gap: 12 },
+  infoText: { flex: 1, fontSize: 12, color: '#0277BD', lineHeight: 18, fontWeight: '600' },
 });
