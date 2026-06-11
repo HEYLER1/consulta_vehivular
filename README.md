@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# Filtra Tu Caña - Consulta Vehicular Perú 🇵🇪
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Una aplicación móvil moderna construida con **Expo SDK 54** diseñada para centralizar las consultas vehiculares más importantes en Perú. Optimizada para funcionar exclusivamente en **Expo Go** sin necesidad de compilaciones nativas.
 
-## Get started
+## 🚀 Características Principales
 
-1. Install dependencies
+- **Consulta SUNARP:** Acceso directo a datos de propiedad y tarjeta vehicular.
+- **Récord de Papeletas:** Consulta de infracciones en el SAT (Lima), Callao y SUTRAN.
+- **Multas Municipales:** Buscador integrado para más de 15 municipalidades provinciales.
+- **Seguridad PNP:** Verificación de lunas polarizadas y requisitorias por robo.
+- **Servicios Técnicos:** Consulta de vigencia de Revisión Técnica (CITV) y GNV/GLP.
+- **SOAT:** Verificación de seguros vigentes vía APESEG.
 
+## 🛠️ Stack Tecnológico
+
+- **Framework:** [Expo SDK 54](https://expo.dev/)
+- **Navegación:** [Expo Router v6](https://docs.expo.dev/router/introduction/) (Basado en File-based Routing)
+- **UI:** React Native con Componentes Tematizados (Dark/Light mode).
+- **WebViews:** Integración con portales oficiales mediante `react-native-webview`.
+
+## 📦 Instalación y Uso
+
+Sigue estos pasos para ejecutar el proyecto localmente:
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/HEYLER1/consulta_vehivular.git
+   cd consulta_vehivular
+   ```
+
+2. **Instalar dependencias:**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Iniciar el proyecto:**
    ```bash
-   npx expo start
+   npx expo start --clear
    ```
 
-In the output, you'll find options to open the app in a
+4. **Ejecutar en tu dispositivo:**
+   - Descarga la app **Expo Go** en tu smartphone (Android o iOS).
+   - Escanea el código QR que aparece en la terminal.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🔄 Reciente Migración (Vía Gemini CLI)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+El proyecto ha sido optimizado recientemente para eliminar dependencias nativas pesadas como `react-native-reanimated` y `react-native-worklets`. 
 
-## Get a fresh project
+- **Navegación:** Se migró de `Drawer` (Menú lateral) a `Tabs` (Barra inferior) para garantizar compatibilidad total con el runtime de **Expo Go**.
+- **Estabilidad:** Se eliminaron errores de `TurboModule` y `NullPointerException` vinculados a módulos nativos no compatibles con el sandbox de Expo.
+- **Limpieza:** Se corrigieron warnings de navegación obsoleta y se optimizó la estructura de rutas.
 
-When you're ready, run:
+## 📂 Estructura del Proyecto
 
-```bash
-npm run reset-project
-```
+- `app/`: Contiene las rutas y layouts de la aplicación (Expo Router).
+- `components/`: Componentes reutilizables como WebViews personalizados y UI elements.
+- `constants/`: Configuraciones de sitios oficiales, colores y temas.
+- `hooks/`: Custom hooks para manejo de estado global y temas.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📄 Notas Importantes
 
-## Learn more
+Esta aplicación es una herramienta informativa que facilita el acceso a portales públicos del estado peruano. No representa a ninguna entidad gubernamental de forma oficial.
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+Desarrollado con ❤️ para conductores y gestores vehiculares en Perú.
