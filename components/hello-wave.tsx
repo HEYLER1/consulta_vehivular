@@ -1,19 +1,19 @@
-import Animated from 'react-native-reanimated';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ThemedText } from './themed-text';
 
 export function HelloWave() {
   return (
-    <Animated.Text
-      style={{
-        fontSize: 28,
-        lineHeight: 32,
-        marginTop: -6,
-        animationName: {
-          '50%': { transform: [{ rotate: '25deg' }] },
-        },
-        animationIterationCount: 4,
-        animationDuration: '300ms',
-      }}>
-      👋
-    </Animated.Text>
+    <View>
+      <ThemedText style={styles.text}>👋</ThemedText>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 28,
+    lineHeight: 32,
+    marginTop: -6,
+  },
+});

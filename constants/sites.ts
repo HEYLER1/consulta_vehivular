@@ -50,11 +50,16 @@ export const COMMON_MUNICIPALES_CSS = `
   /* Aggressive but safe Hide for Headers and Footers */
   nav, .navbar, footer, .footer, #footer, .header, #header,
   header:not(.features-title),
-  .menu-css, #menu, .menu-top, .top-bar, .bottom-bar,
+  [class*="header"], [id*="header"],
+  [class*="navbar"], [id*="navbar"],
+  .top-bar, .bottom-bar,
   .links-panel, .col-lg-3, .col-md-3, .col-sm-3,
   .sidebar, #sidebar, .aside,
   .breadcrumb, .breadcrumbs,
-  .site-header, .site-footer {
+  .site-header, .site-footer,
+  /* Specific fix for Ica duplicate header */
+  .blue-bar, .papeletas-header, [style*="background-color: #337ab7"],
+  [style*="background-color:#337ab7"], .header-site {
     display: none !important;
   }
   /* Show only what we need - specific fix for Ica and others */
@@ -155,6 +160,7 @@ export interface SiteConfig {
   loadingColor?: string;
   showPostOverlay?: boolean;
   hasHeader?: boolean;
+  userAgent?: string;
 }
 
 export const MUNICIPALES_CONFIG: Record<string, SiteConfig> = {
@@ -302,4 +308,60 @@ export const PAPELETAS_CONFIG: Record<string, SiteConfig> = {
     injectedJS: PULL_TO_REFRESH_JS,
     injectedCSS: COMMON_PAPELETAS_CSS,
   },
+};
+
+export const SUNARP_CONOCE_CSS = `
+  ${COMMON_MUNICIPALES_CSS}
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    background: #F8FAFC !important;
+  }
+  /* Hide specific SUNARP Conoce Aqui elements */
+  .navbar, .footer, .header, #header, #footer,
+  .logo, .brand, .btn-regresar, .sidebar,
+  .linea-arcoiris, img[src*="logo"],
+  .menu-secundario, .site-logo {
+    display: none !important;
+  }
+  /* Center the main content card */
+  .container, .main-content, #divPrincipal, form, .card {
+    width: 100% !important;
+    max-width: 450px !important;
+    margin: 10px auto !important;
+    border-radius: 20px !important;
+  }
+`;
+
+export const VEHICULAR_CONFIG: Record<string, SiteConfig> = {
+  citv: {
+    url: 'https://portal.mtc.gob.pe/servicios/consultas_citv.html',
+    title: 'Inspección Técnica',
+    subtitle: 'Consultando CITV (MTC)...',
+    backgroundColor: '#002B5C',
+    loadingColor: '#FFD600',
+    injectedJS: PULL_TO_REFRESH_JS,
+    injectedCSS: COMMON_MUNICIPALES_CSS,
+  },
+  gnv: {
+    url: 'https://www.infogas.com.pe/consultas/consulta-de-vehiculo/',
+    title: 'Certificado GNV/GLP',
+    subtitle: 'Consultando Infogas...',
+    backgroundColor: '#E64A19',
+    loadingColor: '#ffffff',
+    injectedJS: PULL_TO_REFRESH_JS,
+    injectedCSS: COMMON_MUNICIPALES_CSS,
+  },
+  duenos: {
+    url: 'https://conoce-aqui.sunarp.gob.pe/conoce-aqui/inicio',
+    title: 'Historial de Dueños',
+    subtitle: 'Conectando con SUNARP...',
+    backgroundColor: '#D32F2F',
+    loadingColor: '#ffffff',
+    userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+    injectedJS: PULL_TO_REFRESH_JS,
+    injectedCSS: SUNARP_CONOCE_CSS,
+  }
 };

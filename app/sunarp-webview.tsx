@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 
 const ROJO = '#C62828';
 
@@ -32,307 +33,256 @@ const INJECT_BEFORE = `
 
 const INJECT_CSS = `
 (function() {
-
-  let meta = document.querySelector('meta[name="viewport"]');
-  if (!meta) { meta = document.createElement('meta'); meta.name = 'viewport'; document.head.appendChild(meta); }
+  const meta = document.querySelector('meta[name="viewport"]') || document.createElement('meta');
+  meta.name = 'viewport';
   meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+  document.head.appendChild(meta);
 
   const style = document.createElement('style');
   style.innerHTML = \`
-
+    /* ── Reset General ── */
     *, *::before, *::after {
       box-sizing: border-box !important;
+      -webkit-tap-highlight-color: transparent !important;
     }
 
     html {
-      width: 100vw !important;
+      height: 100% !important;
+      width: 100% !important;
       overflow-x: hidden !important;
     }
 
     body {
-      background: #F0F2F5 !important;
+      width: 100% !important;
+      min-height: 100vh !important;
       margin: 0 !important;
       padding: 0 !important;
-      width: 100vw !important;
-      max-width: 100vw !important;
+      background: #F8FAFC !important;
+      font-family: -apple-system, system-ui, sans-serif !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
       overflow-x: hidden !important;
-      font-family: -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+      padding-top: 0 !important; /* Forzar 0 arriba */
     }
 
-    /* ── Ocultar chrome del sitio ── */
-    header, footer, nav,
-    .navbar, .footer, .header,
-    #header, #footer, #navbar,
-    [class*="navbar"], [class*="footer"], [class*="header"],
-    .page-header, .brand, .logo,
-    .alert, .alert-warning, .alert-info,
-    [class*="alert"], .aviso, .informacion,
-    .breadcrumb, [class*="breadcrumb"],
-    .top-bar, .site-logo, [class*="logo"],
-    [class*="banner"], [class*="branding"] {
+    /* ── Limpieza Total de Estorbos ── */
+    header, footer, nav, aside, .navbar, .footer, .header, #header, #footer,
+    .breadcrumb, .top-bar, .logo, .brand, .btn-regresar, .sidebar,
+    .menu-secundario, .site-logo, [class*="navbar"], [class*="footer"],
+    img[src*="logo"], [id*="logo"], [class*="logo"],
+    .linea-arcoiris, [class*="arcoiris"], [class*="rainbow"],
+    [style*="background-image"], [class*="banner"],
+    form img, .panel-heading img, .card-header img,
+    center, hr, br, .spacer, .separator, .border-top, .rainbow-bar {
       display: none !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
-    /* ── Reset de todos los contenedores ── */
-    div, section, article, main, aside,
-    .container, .container-fluid, .container-sm,
-    .container-md, .container-lg, .container-xl,
-    .wrapper, .wrap, .page-wrapper, .page-wrap,
-    .content, .content-wrapper, .main-content,
-    .inner, .inner-wrapper, .site-content,
-    .row, .col, [class*="col-"],
-    .panel, .panel-body, .panel-default,
-    .card, .card-body, .card-wrapper,
-    .box, .box-body, .form-wrapper,
-    [class*="content"], [class*="wrapper"],
-    [class*="inner"], [class*="panel"],
-    [class*="card"], [class*="section"] {
+    /* ── Forzar centrado en todos los niveles intermedios ── */
+    #divPrincipal, .container, .wrapper, .main-content, 
+    .container-fluid, #content, #main, .page-wrapper {
       width: 100% !important;
-      max-width: 100vw !important;
-      min-width: 0 !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      float: none !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      border-left: none !important;
-      border-right: none !important;
+      max-width: 100% !important;
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      margin-top: 0 !important; /* Forzar 0 arriba */
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
       background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
 
     /* ══════════════════════════════════════
-       FORMULARIO — tarjeta blanca elevada
+       EL FORMULARIO ── El corazón de la vista
     ══════════════════════════════════════ */
-    form {
-      background: #fff !important;
-      margin: 1px 1px 1px 1px !important;
-      width: calc(100vw - 32px) !important;
-      max-width: calc(100vw - 32px) !important;
-      border-radius: 20px !important;
-      padding: 10px 8px 12px 8px !important;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.09) !important;
+    form, .panel-primary, .panel, .card {
+      background: #ffffff !important;
+      margin: 0 auto !important; /* Eliminado el margen superior de 15px */
+      margin-top: 10px !important; /* Un mínimo de 10px solo para que no choque con el borde negro */
+      width: calc(100% - 32px) !important;
+      max-width: 400px !important;
+      border-radius: 28px !important;
+      padding: 30px 24px !important;
+      border: 1px solid #E2E8F0 !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important;
+      display: block !important;
+      position: relative !important;
     }
 
-    /* Labels */
-    form label,
-    .form-group label,
-    .control-label {
-      font-size: 12px !important;
-      font-weight: 700 !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.6px !important;
-      color: #616161 !important;
-      margin-bottom: 6px !important;
+    /* Quitar bordes de colores raros (Arcoiris) */
+    .panel-primary, .panel, .card, form {
+      border-top: 1px solid #E2E8F0 !important;
+    }
+    
+    [style*="border-top"], [style*="border-bottom"] {
+      border-top: none !important;
+      border-bottom: none !important;
+    }
+
+    .panel-heading, .card-header, legend {
+      background: transparent !important;
+      color: #1E293B !important;
+      font-weight: 800 !important;
+      font-size: 19px !important;
+      text-align: center !important;
+      padding: 0 0 20px 0 !important;
+      border-bottom: 1px solid #F1F5F9 !important;
+      margin-bottom: 25px !important;
+      width: 100% !important;
       display: block !important;
     }
 
-    /* Grupo de campo */
-    .form-group, form > div {
-      margin-bottom: 14px !important;
-      padding: 0 !important;
-    }
-
-    /* ── Input de placa ── */
-    input[type="text"],
-    input[type="search"],
-    .form-control {
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 16px 18px !important;
-      font-size: 22px !important;
-      font-weight: 800 !important;
-      letter-spacing: 6px !important;
+    label, .control-label {
+      color: #64748B !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
       text-transform: uppercase !important;
+      letter-spacing: 1.2px !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+      text-align: left !important;
+    }
+
+    input[type="text"], .form-control {
+      height: 64px !important;
+      background: #F1F5F9 !important;
+      border: 2px solid transparent !important;
+      border-radius: 18px !important;
+      padding: 0 20px !important;
+      font-size: 26px !important;
+      font-weight: 800 !important;
+      color: #0F172A !important;
       text-align: center !important;
-      border: 2px solid #EEEEEE !important;
-      border-radius: 14px !important;
-      background: #FAFAFA !important;
-      color: #212121 !important;
-      -webkit-appearance: none !important;
-    }
-
-    input[type="text"]::placeholder,
-    .form-control::placeholder {
-      color: #BDBDBD !important;
-      letter-spacing: 4px !important;
-      font-weight: 600 !important;
-      font-size: 18px !important;
-    }
-
-    input[type="text"]:focus,
-    .form-control:focus {
-      border-color: #C62828 !important;
-      background: #fff !important;
-      box-shadow: 0 0 0 4px rgba(198,40,40,0.10) !important;
+      letter-spacing: 5px !important;
+      width: 100% !important;
+      transition: all 0.2s ease !important;
+      margin-bottom: 15px !important;
       outline: none !important;
     }
 
-    /* ── Recaptcha centrado ── */
-    .g-recaptcha, [class*="captcha"], [class*="recaptcha"] {
-      transform: scale(0.88) !important;
-      transform-origin: center top !important;
+    input[type="text"]:focus {
+      background: #fff !important;
+      border-color: #C62828 !important;
+      box-shadow: 0 0 0 4px rgba(198, 40, 40, 0.1) !important;
+    }
+
+    button, .btn, input[type="submit"], input[type="button"] {
+      height: 60px !important;
+      background: #C62828 !important;
+      color: #ffffff !important;
+      border: none !important;
+      border-radius: 18px !important;
+      font-size: 16px !important;
+      font-weight: 800 !important;
+      width: 100% !important;
+      margin-top: 15px !important;
+      box-shadow: 0 4px 12px rgba(198, 40, 40, 0.2) !important;
+      cursor: pointer !important;
+    }
+
+    .g-recaptcha, [id*="captcha"] {
       display: flex !important;
       justify-content: center !important;
-      margin: 4px auto 0 auto !important;
+      margin: 15px 0 !important;
+      transform: scale(0.9) !important;
     }
 
-    /* ══════════════════════════════════════
-       TODOS LOS BOTONES — reales del sitio,
-       sin reemplazar, solo restyling
-    ══════════════════════════════════════ */
-    button,
-    input[type="submit"],
-    input[type="button"],
-    input[type="reset"],
-    a.btn,
-    .btn,
-    [class*="btn"] {
-      display: block !important;
+    .table-responsive, .table-container {
       width: 100% !important;
-      max-width: 100% !important;
-      padding: 17px 20px !important;
-      background: linear-gradient(135deg, #E53935 0%, #C62828 100%) !important;
-      color: #fff !important;
-      border: none !important;
-      border-radius: 14px !important;
-      font-size: 16px !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.4px !important;
-      text-align: center !important;
-      text-decoration: none !important;
-      margin-top: 10px !important;
-      cursor: pointer !important;
-      box-shadow: 0 6px 20px rgba(198,40,40,0.35) !important;
-      -webkit-appearance: none !important;
-      /* Mantener el elemento original intacto, solo cambiar apariencia */
-      pointer-events: auto !important;
-      position: relative !important;
-      z-index: 1 !important;
-    }
-
-    button:active,
-    input[type="submit"]:active,
-    input[type="button"]:active,
-    a.btn:active,
-    .btn:active {
-      transform: scale(0.97) !important;
-      box-shadow: 0 3px 10px rgba(198,40,40,0.30) !important;
-    }
-
-    /* ══════════════════════════════════════
-       RESULTADOS — imagen y tabla
-    ══════════════════════════════════════ */
-    img {
-      max-width: 100vw !important;
-      width: auto !important;
-      height: auto !important;
-      object-fit: contain !important;
-      display: block !important;
-    }
-
-    [class*="foto"] img,
-    [class*="imagen"] img,
-    [class*="photo"] img,
-    [class*="vehiculo"] img,
-    [class*="result"] img,
-    table img, td img, th img {
-      max-width: 100% !important;
-      width: 100% !important;
-      height: auto !important;
-      object-fit: contain !important;
-      border-radius: 12px !important;
-    }
-
-    [class*="foto"], [class*="photo"], [class*="imagen"] {
-      width: 100% !important;
-      max-width: 100% !important;
-      padding: 8px !important;
-      margin: 0 !important;
-      overflow: hidden !important;
+      padding: 10px 16px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
     }
 
     table {
       width: 100% !important;
-      max-width: 100vw !important;
-      border-collapse: collapse !important;
-      table-layout: fixed !important;
-      word-wrap: break-word !important;
+      max-width: 450px !important;
+      border-radius: 20px !important;
+      overflow: hidden !important;
+      border: 1px solid #E2E8F0 !important;
       background: #fff !important;
-      margin: 12px 0 !important;
+      margin-bottom: 20px !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
     }
 
-    td, th {
-      padding: 11px 12px !important;
-      font-size: 13px !important;
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      border-bottom: 1px solid #F5F5F5 !important;
+    td {
+      padding: 16px !important;
+      color: #334155 !important;
+      font-size: 14px !important;
+      border-bottom: 1px solid #F1F5F9 !important;
     }
 
-    tr:last-child td { border-bottom: none !important; }
-    tr:nth-child(even) td { background: #FAFAFA !important; }
-
-    th, td:first-child {
+    tr td:first-child {
       font-weight: 700 !important;
-      color: #424242 !important;
-      background: #FFF8F8 !important;
+      color: #1E293B !important;
+      width: 45% !important;
+      background: #F8FAFC !important;
     }
 
-    th {
-      background: #C62828 !important;
-      color: #fff !important;
-      font-size: 12px !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.5px !important;
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 16px !important;
+      margin: 15px 0 !important;
+      display: block !important;
     }
 
+    br, hr { display: none !important; }
   \`;
   document.head.appendChild(style);
 
-  /* ── Eliminar width inline que encoge los elementos ── */
-  function stripInlineWidths() {
-    document.querySelectorAll('*').forEach(function(el) {
-      if (el.style) {
-        el.style.removeProperty('width');
-        el.style.removeProperty('max-width');
-        el.style.removeProperty('min-width');
+  const fixLayout = () => {
+    document.querySelectorAll('*').forEach(el => {
+      if (el.style && (el.style.width || el.style.maxWidth)) {
+        const w = el.style.width;
+        if (w && w.includes('px') && parseInt(w) > 300) {
+           el.style.setProperty('width', '100%', 'important');
+           el.style.setProperty('max-width', '100%', 'important');
+        }
       }
     });
-  }
+  };
 
-  function init() {
-    stripInlineWidths();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  // Observar cambios dinámicos
-  const obs = new MutationObserver(function() {
-    stripInlineWidths();
-  });
-  obs.observe(document.body, { childList: true, subtree: true });
-
+  fixLayout();
+  const observer = new MutationObserver(fixLayout);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
 })();
 true;
 `;
 
 export default function SunarpWebViewScreen() {
+  const { plate } = useLocalSearchParams<{ plate: string }>();
   const webViewRef = useRef<WebView>(null);
-  const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
+
+  const INJECT_PLATE = plate ? `
+    (function() {
+      const input = document.querySelector('input[type="text"]');
+      if (input) {
+        input.value = "${plate}";
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    })();
+    true;
+  ` : 'true;';
   const backPressCount = useRef(0);
   const backPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const reload = () => {
     setBlocked(false);
-    setLoading(true);
     webViewRef.current?.reload();
   };
 
@@ -376,10 +326,6 @@ export default function SunarpWebViewScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* Barra superior */}
-     
-      {/* Cloudflare bloqueado */}
       {blocked && (
         <View style={styles.overlay}>
           <Ionicons name="shield-outline" size={52} color={ROJO} />
@@ -400,17 +346,16 @@ export default function SunarpWebViewScreen() {
         style={styles.webview}
         userAgent="Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
         injectedJavaScriptBeforeContentLoaded={INJECT_BEFORE}
-        injectedJavaScript={INJECT_CSS}
+        injectedJavaScript={INJECT_CSS + INJECT_PLATE}
         javaScriptEnabled
         domStorageEnabled
         thirdPartyCookiesEnabled
         sharedCookiesEnabled
-        onLoadStart={() => { setLoading(true); setBlocked(false); }}
-        onLoadEnd={() => setLoading(false)}
-        onError={() => setLoading(false)}
+        onLoadStart={() => { setBlocked(false); }}
+        onLoadEnd={() => {}}
+        onError={() => {}}
         onHttpError={(e) => {
           if (e.nativeEvent.statusCode === 403 || e.nativeEvent.statusCode === 503) {
-            setLoading(false);
             setBlocked(true);
           }
         }}
@@ -425,35 +370,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: ROJO,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: ROJO,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  backBtn: {
-    padding: 4,
-    marginRight: 4,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-  },
-  topTitle: {
-    flex: 1,
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  reloadBtn: {
-    padding: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   webview: {
     flex: 1,

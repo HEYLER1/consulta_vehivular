@@ -19,7 +19,7 @@ export default function ATUScreen() {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.banner, { borderLeftColor: '#1565C0' }]}>
-          <Ionicons name="bus-outline" size={20} color="#1565C0" />
+          <Ionicons name="bus" size={20} color="#1565C0" />
           <ThemedText style={styles.bannerText}>
             Consulta las multas emitidas por la ATU a vehículos de transporte público urbano en Lima y Callao.
           </ThemedText>
@@ -28,7 +28,7 @@ export default function ATUScreen() {
         <View style={styles.card}>
           <ThemedText style={styles.cardTitle}>Buscar por placa del vehículo</ThemedText>
           <View style={styles.inputRow}>
-            <Ionicons name="bus-outline" size={20} color="#888" style={{ marginRight: 10 }} />
+            <Ionicons name="bus" size={20} color="#888" style={{ marginRight: 10 }} />
             <TextInput
               style={styles.input}
               placeholder="Ej: ABC-123"
@@ -61,7 +61,7 @@ export default function ATUScreen() {
         </View>
 
         <View style={styles.emptyState}>
-          <Ionicons name="bus-outline" size={50} color="#ddd" />
+          <Ionicons name="bus" size={50} color="#ddd" />
           <ThemedText style={styles.emptyText}>
             Ingresa la placa del vehículo de transporte para ver sus infracciones
           </ThemedText>

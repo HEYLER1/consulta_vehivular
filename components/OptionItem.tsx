@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ViewStyle, useColorScheme } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/themed-text';
+import { Colors } from '@/constants/theme';
 
 interface OptionItemProps {
   icon: string;
@@ -11,6 +12,7 @@ interface OptionItemProps {
   color: string;
   onPress?: () => void;
   style?: ViewStyle;
+  isLast?: boolean;
 }
 
 export function OptionItem({ 
@@ -20,50 +22,35 @@ export function OptionItem({
   subtitle, 
   color, 
   onPress,
-  style 
+  style,
+  isLast = false
 }: OptionItemProps) {
   const IconComponent = iconType === 'MaterialCommunityIcons' ? MaterialCommunityIcons : Ionicons;
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
 
   return (
     <TouchableOpacity 
-      style={[styles.optionCard, style]} 
+      style={[styles.listItem, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.backgroundGris }, style]}
       activeOpacity={0.7}
       onPress={onPress}
       disabled={!onPress}
     >
-      <View style={[styles.iconBox, { backgroundColor: color }]}>
-        <IconComponent name={icon as any} size={24} color="white" />
+      <View style={[styles.listIconBox, { backgroundColor: color + '10' }]}>
+        <IconComponent name={icon as any} size={24} color={color} />
       </View>
-      <View style={styles.textContainer}>
-        <ThemedText type="defaultSemiBold" style={styles.optionTitle}>{title}</ThemedText>
-        <ThemedText style={styles.optionSubtitle}>{subtitle}</ThemedText>
+      <View style={{ flex: 1 }}>
+        <ThemedText style={[styles.listTitle, { color: theme.textoTitulo }]}>{title}</ThemedText>
+        <ThemedText style={[styles.listSubtitle, { color: theme.textoMuted }]}>{subtitle}</ThemedText>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#ccc" />
+      <Ionicons name="chevron-forward" size={16} color="#B0BEC5" />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 18,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-  },
-  iconBox: { 
-    width: 48, 
-    height: 48, 
-    borderRadius: 12, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginRight: 15 
-  },
-  textContainer: { flex: 1 },
-  optionTitle: { fontSize: 15, color: '#333' },
-  optionSubtitle: { fontSize: 12, color: '#888', marginTop: 2 },
+  listItem: { flexDirection: 'row', alignItems: 'center', padding: 18 },
+  listIconBox: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  listTitle: { fontSize: 15, fontWeight: '800' },
+  listSubtitle: { fontSize: 12, marginTop: 2 },
 });

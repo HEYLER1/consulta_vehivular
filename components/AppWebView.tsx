@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView, WebViewProps } from 'react-native-webview';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedView } from './themed-view';
 import { ThemedText } from './themed-text';
 
@@ -14,6 +13,7 @@ interface AppWebViewProps extends Partial<WebViewProps> {
   loadingColor?: string;
   backgroundColor?: string;
   showPostOverlay?: boolean;
+  plate?: string;
 }
 
 export function AppWebView({
@@ -25,13 +25,46 @@ export function AppWebView({
   loadingColor = '#455A64',
   backgroundColor = '#F4F6F8',
   showPostOverlay = false,
+  plate,
   ...rest
 }: AppWebViewProps) {
-  const insets = useSafeAreaInsets();
   const [ready, setReady] = useState(false);
   const [postOverlay, setPostOverlay] = useState(false);
   const hasLoadedOnce = useRef(false);
   const webViewRef = useRef<WebView>(null);
+
+  const INJECT_PLATE_JS = plate ? `
+    (function() {
+      const selectors = [
+        'input[type="text"]', 
+        'input#placa', 
+        'input#txtPlaca', 
+        'input[name*="placa" i]',
+        'input[placeholder*="placa" i]'
+      ];
+      const tryFill = () => {
+        let filled = false;
+        selectors.forEach(sel => {
+          const el = document.querySelector(sel);
+          if (el && !el.value) {
+            el.value = "${plate}";
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            filled = true;
+          }
+        });
+        return filled;
+      };
+      
+      if (!tryFill()) {
+        const observer = new MutationObserver(() => {
+          if (tryFill()) observer.disconnect();
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        setTimeout(() => observer.disconnect(), 5000);
+      }
+    })();
+  ` : '';
 
   const finalInjectedJS = `
     (function() {
@@ -40,6 +73,7 @@ export function AppWebView({
         style.textContent = \`${injectedCSS}\`;
         document.head.appendChild(style);
       ` : ''}
+      ${INJECT_PLATE_JS}
       ${injectedJS || ''}
     })();
     true;

@@ -1,17 +1,13 @@
 import { AppWebView } from '@/components/AppWebView';
 import { MUNICIPALES_CONFIG } from '@/constants/sites';
-import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CiudadScreen() {
   const { ciudad } = useLocalSearchParams<{ ciudad: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const config = MUNICIPALES_CONFIG[ciudad as string];
-  const [currentUrl, setCurrentUrl] = useState(config?.url || '');
 
   if (!config) {
     return (
@@ -34,7 +30,6 @@ export default function CiudadScreen() {
           headerStyle: { backgroundColor: '#1A237E' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: '800' },
-          headerBackTitleVisible: false,
         }} 
       />
       <StatusBar barStyle="light-content" />
@@ -48,7 +43,6 @@ export default function CiudadScreen() {
           subtitle="Conectando con el servidor municipal"
           loadingColor="#455A64"
           backgroundColor="#F4F6F8"
-          onNavigationStateChange={(navState) => setCurrentUrl(navState.url)}
         />
       </View>
     </View>

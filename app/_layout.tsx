@@ -1,13 +1,8 @@
+import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { useColorScheme } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,6 +12,10 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="sunarp-webview" options={{ title: 'SUNARP', headerShown: true }} />
+        <Stack.Screen name="vehiculo/duenos" options={{ title: 'Historial de Dueños', headerShown: true }} />
+        <Stack.Screen name="municipales/[ciudad]" options={{ title: 'Multas Municipales', headerShown: true }} />
+        <Stack.Screen name="papeletas" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

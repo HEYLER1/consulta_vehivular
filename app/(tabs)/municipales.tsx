@@ -6,8 +6,9 @@ import React, { useState, useMemo } from 'react';
 import {
   FlatList, StyleSheet, TextInput,
   TouchableOpacity, View,
-  Dimensions
+  Dimensions, useColorScheme
 } from 'react-native';
+import { Colors } from '@/constants/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -38,7 +39,7 @@ const TABS: { label: Tab; color: string; icon: string }[] = [
   { label: 'Todo',   color: '#1A237E', icon: 'apps' },
   { label: 'Norte',  color: '#0D47A1', icon: 'boat' },
   { label: 'Centro', color: '#1B5E20', icon: 'business' },
-  { label: 'Sur',    color: '#B71C1C', icon: 'mountain' },
+  { label: 'Sur',    color: '#B71C1C', icon: 'mountain-outline' },
 ];
 
 const REGION_COLORS: Record<string, string> = {
@@ -61,15 +62,16 @@ const ListHeader = ({
   setActiveTab, 
   populares, 
   router,
-  showTitle 
+  showTitle,
+  theme
 }: any) => (
   <View>
-    <View style={styles.heroBanner}>
-      <View style={styles.searchBar}>
+    <View style={[styles.heroBanner, { backgroundColor: theme.brandAzul }]}>
+      <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
         <Ionicons name="search" size={20} color="#90A4AE" style={{ marginRight: 10 }} />
         <TextInput
           placeholder="¿En qué ciudad buscas multas?"
-          style={styles.input}
+          style={[styles.input, { color: theme.textoTitulo }]}
           value={search}
           onChangeText={setSearch}
           placeholderTextColor="#90A4AE"
@@ -88,12 +90,12 @@ const ListHeader = ({
         return (
           <TouchableOpacity
             key={label}
-            style={[styles.tab, isActive && { backgroundColor: color, borderColor: color }]}
+            style={[styles.tab, { backgroundColor: theme.background }, isActive && { backgroundColor: color, borderColor: color }]}
             onPress={() => setActiveTab(label)}
             activeOpacity={0.8}
           >
-            <Ionicons name={icon as any} size={18} color={isActive ? '#FFD600' : '#78909C'} />
-            <ThemedText style={[styles.tabText, { color: isActive ? '#fff' : '#546E7A' }]}>
+            <Ionicons name={icon as any} size={18} color={isActive ? theme.brandOro : '#78909C'} />
+            <ThemedText style={[styles.tabText, { color: isActive ? theme.background : theme.textoMuted }]}>
               {label}
             </ThemedText>
           </TouchableOpacity>
@@ -103,7 +105,7 @@ const ListHeader = ({
 
     {!search && populares.length > 0 && (
       <View style={styles.popularSection}>
-        <ThemedText style={styles.sectionTitle}>Ciudades con más tráfico</ThemedText>
+        <ThemedText style={[styles.sectionTitle, { color: theme.textoTitulo }]}>Ciudades con más tráfico</ThemedText>
         <View style={styles.popularGrid}>
           {populares.slice(0, 4).map((city: any) => (
             <TouchableOpacity 
@@ -114,7 +116,7 @@ const ListHeader = ({
               <View style={[styles.popularIcon, { backgroundColor: REGION_COLORS[city.region] }]}>
                 <ThemedText style={styles.popularInitial}>{city.nombre[0]}</ThemedText>
               </View>
-              <ThemedText style={styles.popularName} numberOfLines={1}>{city.nombre}</ThemedText>
+              <ThemedText style={[styles.popularName, { color: theme.textoTitulo }]} numberOfLines={1}>{city.nombre}</ThemedText>
             </TouchableOpacity>
           ))}
         </View>
@@ -122,7 +124,7 @@ const ListHeader = ({
     )}
 
     {showTitle && (
-      <ThemedText style={styles.sectionTitle}>Todas las Municipalidades</ThemedText>
+      <ThemedText style={[styles.sectionTitle, { color: theme.textoTitulo }]}>Todas las Municipalidades</ThemedText>
     )}
   </View>
 );
@@ -131,6 +133,8 @@ export default function MunicipalesScreen() {
   const [search, setSearch]       = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('Todo');
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
 
   const { populares, filtered } = useMemo(() => {
     const matched = CIUDADES.filter(c => {
@@ -146,7 +150,7 @@ export default function MunicipalesScreen() {
   }, [search, activeTab]);
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={[styles.container, { backgroundColor: theme.backgroundGris }]}>
       <FlatList
         data={filtered}
         keyExtractor={item => item.id}
@@ -159,13 +163,14 @@ export default function MunicipalesScreen() {
             populares={populares}
             router={router}
             showTitle={filtered.length > 0}
+            theme={theme}
           />
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.cityCard}
+            style={[styles.cityCard, { backgroundColor: theme.background, borderColor: theme.backgroundGris }]}
             activeOpacity={0.7}
             onPress={() => router.push(item.ruta as any)}
           >
@@ -177,7 +182,7 @@ export default function MunicipalesScreen() {
               />
             </View>
             <View style={{ flex: 1 }}>
-              <ThemedText style={styles.cityName}>
+              <ThemedText style={[styles.cityName, { color: theme.textoTitulo }]}>
                 {item.nombre}
               </ThemedText>
               <View style={styles.regionTag}>
@@ -204,11 +209,10 @@ export default function MunicipalesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFB' },
+  container: { flex: 1 },
   listContent: { paddingBottom: 30 },
 
   heroBanner: {
-    backgroundColor: '#002B5C', // Azul Institucional
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 20,
@@ -232,7 +236,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#ECEFF1',
-    backgroundColor: '#fff',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -244,7 +247,6 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 56,
@@ -256,12 +258,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
   },
-  input: { flex: 1, fontSize: 16, color: '#263238', fontWeight: '500' },
+  input: { flex: 1, fontSize: 16, fontWeight: '500' },
 
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#263238',
     marginHorizontal: 20,
     marginBottom: 16,
     textTransform: 'uppercase',
@@ -289,18 +290,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   popularInitial: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  popularName: { fontSize: 12, fontWeight: '700', color: '#455A64', textAlign: 'center' },
+  popularName: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
 
   cityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     marginHorizontal: 16,
     marginBottom: 12,
     padding: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#F1F3F4',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -315,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 16,
   },
-  cityName: { fontSize: 17, fontWeight: '800', color: '#263238' },
+  cityName: { fontSize: 17, fontWeight: '800' },
   regionTag: {
     flexDirection: 'row',
     alignItems: 'center',

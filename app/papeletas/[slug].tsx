@@ -1,17 +1,15 @@
 import { AppWebView } from '@/components/AppWebView';
-import { PAPELETAS_CONFIG } from '@/constants/sites';
-import { Ionicons } from '@expo/vector-icons';
+import { PAPELETAS_CONFIG, VEHICULAR_CONFIG } from '@/constants/sites';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PapeletaDetailScreen() {
-  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const { slug, plate } = useLocalSearchParams<{ slug: string, plate?: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const config = PAPELETAS_CONFIG[slug as string];
-  const [currentUrl, setCurrentUrl] = useState(config?.url || '');
+  
+  const ALL_CONFIGS = { ...PAPELETAS_CONFIG, ...VEHICULAR_CONFIG };
+  const config = ALL_CONFIGS[slug as string];
 
   if (!config) {
     return (
@@ -34,7 +32,6 @@ export default function PapeletaDetailScreen() {
           headerStyle: { backgroundColor: config.backgroundColor || '#12102A' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: '800' },
-          headerBackTitleVisible: false,
         }} 
       />
       <StatusBar barStyle="light-content" />
@@ -49,7 +46,8 @@ export default function PapeletaDetailScreen() {
           backgroundColor={config.backgroundColor}
           loadingColor={config.loadingColor}
           showPostOverlay={config.showPostOverlay}
-          onNavigationStateChange={(navState) => setCurrentUrl(navState.url)}
+          plate={plate}
+          userAgent={config.userAgent}
         />
       </View>
     </View>
