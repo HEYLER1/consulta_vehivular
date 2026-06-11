@@ -13,21 +13,21 @@ const SECTIONS = [
     label: 'Lima y Callao',
     options: [
       {
-        route: '/papeletas/sat',
+        route: '/viewer/papeletas/sat',
         icon: 'file-document-outline',
         title: 'Papeletas Lima',
         subtitle: 'SAT Lima Infracciones',
         color: '#C8102E', // brandRojo
       },
       {
-        route: '/papeletas/callao',
+        route: '/viewer/papeletas/callao',
         icon: 'file-document-outline',
         title: 'Papeletas Callao',
         subtitle: 'Infracciones Callao',
         color: '#C8102E',
       },
       {
-        route: '/papeletas/orden-captura',
+        route: '/viewer/papeletas/orden-captura',
         icon: 'car-emergency',
         title: 'Orden de Captura',
         subtitle: 'Vehículos con captura SAT',
@@ -39,7 +39,7 @@ const SECTIONS = [
     label: 'Control de Velocidad',
     options: [
       {
-        route: '/papeletas/fotopit',
+        route: '/viewer/papeletas/fotopit',
         icon: 'camera-outline',
         title: 'Foto Papeletas',
         subtitle: 'FotoPIT — Cinemómetros',
@@ -51,7 +51,7 @@ const SECTIONS = [
     label: 'Transporte Nacional',
     options: [
       {
-        route: '/papeletas/sutran',
+        route: '/viewer/papeletas/sutran',
         icon: 'highway',
         title: 'SUTRAN',
         subtitle: 'Récord de Infracciones',

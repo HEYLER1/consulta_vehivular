@@ -1,6 +1,6 @@
 import { ThemedText } from '../../components/themed-text';
 import { ThemedView } from '../../components/themed-view';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -9,97 +9,40 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
-  useColorScheme
+  useColorScheme,
+  FlatList
 } from 'react-native';
 import { PlacaVirtual } from '../../components/PlacaVirtual';
-import { OptionItem } from '../../components/OptionItem';
 import { Colors } from '../../constants/theme';
 
-// ── SECCIONES DE DETALLE ── 
-
-interface MenuOption {
+interface QuickAction {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
-  subtitle: string;
   color: string;
-  tag?: string;
-  route?: string;
+  route: string;
 }
 
-const QUICK_ACTIONS: MenuOption[] = [
-  {
-    icon: 'magnify-expand',
-    title: 'Consulta SUNARP',
-    subtitle: 'Datos de propiedad',
-    color: '#002B5C',
-    route: '/sunarp-webview',
-    tag: 'OFICIAL'
-  },
-  {
-    icon: 'shield-check',
-    title: 'SOAT Vigente',
-    subtitle: 'Consulta APESEG',
-    color: '#2E7D32',
-    tag: 'ALERTA'
-  },
+const QUICK_ACTIONS: QuickAction[] = [
+  { icon: 'magnify-expand', title: 'SUNARP', color: '#002B5C', route: '/viewer/vehicular/sunarp' },
+  { icon: 'shield-check', title: 'SOAT', color: '#2E7D32', route: '/viewer/seguros/soat' },
+  { icon: 'file-document-outline', title: 'Papeletas', color: '#C62828', route: '/papeletas' },
+  { icon: 'office-building', title: 'Municipales', color: '#1976D2', route: '/municipales' },
 ];
 
-interface SectionItem {
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  title: string;
-  subtitle: string;
-  color: string;
-}
-
-interface Section {
-  label: string;
-  items: SectionItem[];
-}
-
-const SECTIONS: Section[] = [
-  {
-    label: 'Registros Oficiales',
-    items: [
-      {
-        icon: 'card-account-details-outline',
-        title: 'Impuesto Vehicular',
-        subtitle: 'Deudas pendientes en el SAT',
-        color: '#002B5C',
-      },
-      {
-        icon: 'history',
-        title: 'Historial de Propietarios',
-        subtitle: 'Transferencias registradas',
-        color: '#002B5C',
-      },
-      {
-        icon: 'alert-decagram-outline',
-        title: 'Gravámenes y Embargos',
-        subtitle: 'Cargas sobre el vehículo',
-        color: '#C62828',
-      },
-    ],
-  },
-  {
-    label: 'Servicios Técnicos',
-    items: [
-      {
-        icon: 'tools',
-        title: 'Revisión Técnica',
-        subtitle: 'Estado del CITV vigente',
-        color: '#455A64',
-      },
-      {
-        icon: 'gas-station',
-        title: 'Certificación GNV/GLP',
-        subtitle: 'Vigencia de chips de gas',
-        color: '#E64A19',
-      },
-    ],
-  },
+const RECENT_SEARCHES = [
+  { plate: 'ABC-123', date: 'Hace 5 min' },
+  { plate: 'FGH-902', date: 'Ayer' },
+  { plate: 'YUI-112', date: '20 May' },
 ];
 
-function HomeScreen() {
+const SHORTCUTS = [
+  { icon: 'tools', title: 'Revisión Técnica', route: '/viewer/vehicular/citv', color: '#455A64' },
+  { icon: 'gas-station', title: 'Certificado Gas', route: '/viewer/vehicular/gnv', color: '#E64A19' },
+  { icon: 'police-badge', title: 'Requisitorias', route: '/viewer/seguridad/robo', color: '#B71C1C' },
+  { icon: 'card-account-details', title: 'Gravámenes', route: '/viewer/vehicular/duenos', color: '#002B5C' },
+];
+
+export default function HomeScreen() {
   const router = useRouter();
   const [placa, setPlaca] = useState('');
   const colorScheme = useColorScheme();
@@ -110,54 +53,78 @@ function HomeScreen() {
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        {/* ── PLACA VIRTUAL HEADER ── */}
-        <PlacaVirtual placa={placa} onChangePlaca={setPlaca} />
-
-        {/* ── ACCIONES RÁPIDAS ── */}
-        <View style={styles.quickActionsGrid}>
-          {QUICK_ACTIONS.map((item, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={[styles.actionCard, { backgroundColor: theme.background }]}
-              onPress={() => item.route && router.push(item.route as any)}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.actionIconBox, { backgroundColor: item.color + '15' }]}>
-                <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
-              </View>
-              <ThemedText style={[styles.actionTitle, { color: theme.textoTitulo }]}>{item.title}</ThemedText>
-              <ThemedText style={styles.actionSubtitle}>{item.subtitle}</ThemedText>
-              {item.tag && (
-                <View style={[styles.actionTag, { backgroundColor: item.color }]}>
-                  <ThemedText style={styles.actionTagText}>{item.tag}</ThemedText>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
+        {/* ── SECCIÓN: INICIO (Header) ── */}
+        <View style={styles.header}>
+          <ThemedText style={styles.greeting}>¡Hola!</ThemedText>
+          <ThemedText style={styles.welcomeSubtitle}>Bienvenido al portal vehicular</ThemedText>
         </View>
 
-        {/* ── SECCIONES DE DETALLE ── */}
-        {SECTIONS.map((section, sIdx) => (
-          <View key={sIdx} style={styles.sectionContainer}>
-            <ThemedText style={styles.sectionLabel}>{section.label}</ThemedText>
-            <View style={[styles.listCard, { backgroundColor: theme.background }]}>
-              {section.items.map((item, iIdx) => (
-                <OptionItem
-                  key={iIdx}
-                  icon={item.icon}
-                  iconType="MaterialCommunityIcons"
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  color={item.color}
-                  isLast={iIdx === section.items.length - 1}
-                  onPress={() => {}} // Placeholder for now, or add specific routes
-                />
-              ))}
-            </View>
-          </View>
-        ))}
+        {/* Buscador Central */}
+        <PlacaVirtual placa={placa} onChangePlaca={setPlaca} />
 
-        <View style={[styles.infoBanner, { backgroundColor: theme.backgroundGris }]}>
+        {/* ── SECCIÓN: CONSULTAS RÁPIDAS ── */}
+        <View style={styles.sectionContainer}>
+          <ThemedText style={styles.sectionTitle}>Consultas Rápidas</ThemedText>
+          <View style={styles.quickActionsGrid}>
+            {QUICK_ACTIONS.map((item, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.actionCard, { backgroundColor: theme.background }]}
+                onPress={() => router.push(item.route as any)}
+              >
+                <View style={[styles.actionIconBox, { backgroundColor: item.color + '15' }]}>
+                  <MaterialCommunityIcons name={item.icon} size={24} color={item.color} />
+                </View>
+                <ThemedText style={styles.actionTitle}>{item.title}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* ── SECCIÓN: ÚLTIMAS BÚSQUEDAS ── */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeaderRow}>
+            <ThemedText style={styles.sectionTitle}>Últimas Búsquedas</ThemedText>
+            <TouchableOpacity><ThemedText style={styles.viewAll}>Limpiar</ThemedText></TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentScroll}>
+            {RECENT_SEARCHES.map((item, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.recentCard, { backgroundColor: theme.background }]}
+                onPress={() => setPlaca(item.plate)}
+              >
+                <Ionicons name="time-outline" size={14} color="#90A4AE" />
+                <ThemedText style={styles.recentPlate}>{item.plate}</ThemedText>
+                <ThemedText style={styles.recentDate}>{item.date}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* ── SECCIÓN: ACCESOS DIRECTOS ── */}
+        <View style={styles.sectionContainer}>
+          <ThemedText style={styles.sectionTitle}>Accesos Directos</ThemedText>
+          <View style={[styles.shortcutsCard, { backgroundColor: theme.background }]}>
+            {SHORTCUTS.map((item, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.shortcutItem, index !== SHORTCUTS.length - 1 && styles.shortcutBorder]}
+                onPress={() => router.push(item.route as any)}
+              >
+                <View style={[styles.shortcutIconBox, { backgroundColor: item.color }]}>
+                  <MaterialCommunityIcons name={item.icon as any} size={20} color="#FFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <ThemedText style={styles.shortcutTitle}>{item.title}</ThemedText>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#CFD8DC" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={[styles.infoBanner, { backgroundColor: theme.brandAzul + '10' }]}>
           <Ionicons name="information-circle" size={18} color={theme.brandAzul} />
           <ThemedText style={[styles.infoText, { color: theme.brandAzul }]}>
             La placa ingresada se usará automáticamente en todas las consultas del sistema.
@@ -165,29 +132,61 @@ function HomeScreen() {
         </View>
 
       </ScrollView>
-
     </ThemedView>
   );
 }
 
-export default HomeScreen;
-
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
+  
+  header: { marginBottom: 20 },
+  greeting: { fontSize: 24, fontWeight: '900', color: '#1A237E' },
+  welcomeSubtitle: { fontSize: 14, color: '#78909C', fontWeight: '600' },
 
-  quickActionsGrid: { flexDirection: 'row', gap: 15, marginBottom: 25 },
-  actionCard: { flex: 1, borderRadius: 22, padding: 18, alignItems: 'center', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.08, shadowRadius: 6 },
-  actionIconBox: { width: 60, height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  actionTitle: { fontSize: 13, fontWeight: '800', textAlign: 'center' },
-  actionSubtitle: { fontSize: 10, color: '#78909C', textAlign: 'center', marginTop: 3 },
-  actionTag: { position: 'absolute', top: 12, right: 12, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  actionTagText: { color: '#FFFFFF', fontSize: 8, fontWeight: '900' },
+  sectionContainer: { marginBottom: 30 },
+  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: '#455A64', marginBottom: 15 },
+  viewAll: { fontSize: 12, color: '#1A237E', fontWeight: '700' },
 
-  sectionContainer: { marginBottom: 25 },
-  sectionLabel: { fontSize: 13, fontWeight: '900', color: '#546E7A', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, marginLeft: 5 },
-  listCard: { borderRadius: 22, overflow: 'hidden', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
+  quickActionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  actionCard: { 
+    width: '48%', 
+    borderRadius: 18, 
+    padding: 16, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5
+  },
+  actionIconBox: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  actionTitle: { fontSize: 13, fontWeight: '700' },
 
-  infoBanner: { flexDirection: 'row', padding: 18, borderRadius: 18, alignItems: 'flex-start', gap: 12 },
+  recentScroll: { marginHorizontal: -20, paddingHorizontal: 20 },
+  recentCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 8, 
+    paddingHorizontal: 14, 
+    paddingVertical: 10, 
+    borderRadius: 30, 
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#ECEFF1'
+  },
+  recentPlate: { fontSize: 13, fontWeight: '800', color: '#1A237E' },
+  recentDate: { fontSize: 10, color: '#90A4AE' },
+
+  shortcutsCard: { borderRadius: 22, overflow: 'hidden', elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6 },
+  shortcutItem: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 15 },
+  shortcutBorder: { borderBottomWidth: 1, borderBottomColor: '#F5F7F8' },
+  shortcutIconBox: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  shortcutTitle: { fontSize: 14, fontWeight: '600' },
+
+  infoBanner: { flexDirection: 'row', padding: 18, borderRadius: 18, alignItems: 'flex-start', gap: 12, marginTop: 10 },
   infoText: { flex: 1, fontSize: 12, lineHeight: 18, fontWeight: '600' },
 });

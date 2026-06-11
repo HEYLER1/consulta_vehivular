@@ -2,6 +2,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StatusBar, StyleSheet, View, useColorScheme } from 'react-native';
 import { OptionItem } from '@/components/OptionItem';
@@ -9,18 +10,21 @@ import { Colors } from '@/constants/theme';
 
 const OPTIONS = [
   {
+    slug: 'lunas',
     icon: 'car-wash',
     title: 'Lunas Polarizadas',
     subtitle: 'Consulta de estado y vigencia PNP',
     color: '#002B5C',
   },
   {
+    slug: 'robo',
     icon: 'shield-search',
     title: 'Requisitorias por Robo',
     subtitle: 'Verificar orden de captura policial',
     color: '#C62828',
   },
   {
+    slug: 'denuncias',
     icon: 'file-document-edit-outline',
     title: 'Denuncias Policiales',
     subtitle: 'Copia certificada de denuncias por pérdida',
@@ -29,6 +33,7 @@ const OPTIONS = [
 ];
 
 export default function SeguridadScreen() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
 
@@ -57,7 +62,7 @@ export default function SeguridadScreen() {
               subtitle={item.subtitle}
               color={item.color}
               isLast={index === OPTIONS.length - 1}
-              onPress={() => {}}
+              onPress={() => router.push(`/viewer/seguridad/${item.slug}`)}
             />
           ))}
         </View>

@@ -47,7 +47,6 @@ export const COMMON_MUNICIPALES_CSS = `
     color: #1a1a2e !important;
     margin: 0; padding: 0;
   }
-  /* Aggressive but safe Hide for Headers and Footers */
   nav, .navbar, footer, .footer, #footer, .header, #header,
   header:not(.features-title),
   [class*="header"], [id*="header"],
@@ -57,12 +56,10 @@ export const COMMON_MUNICIPALES_CSS = `
   .sidebar, #sidebar, .aside,
   .breadcrumb, .breadcrumbs,
   .site-header, .site-footer,
-  /* Specific fix for Ica duplicate header */
   .blue-bar, .papeletas-header, [style*="background-color: #337ab7"],
   [style*="background-color:#337ab7"], .header-site {
     display: none !important;
   }
-  /* Show only what we need - specific fix for Ica and others */
   .container-fluid, .container, main, #main, .main-content, #content, .content, #wrapper, .wrapper { 
     display: block !important;
     visibility: visible !important;
@@ -103,35 +100,7 @@ export const COMMON_MUNICIPALES_CSS = `
   tbody td { padding: 12px 10px !important; color: #37474F !important; border-bottom: 1px solid #ECEFF1 !important; }
 `;
 
-export const JAEN_JS = `
-  (function() {
-    // Hide potential annoying elements
-    const hideSelectors = ['header', 'footer', 'nav', '.navbar', '.top-bar', '.footer-bottom'];
-    hideSelectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
-    });
-
-    // Style the main container
-    const mainContainer = document.querySelector('.container, .main-content, #content');
-    if (mainContainer) {
-      mainContainer.style.padding = '16px';
-      mainContainer.style.maxWidth = '100%';
-    }
-
-    // Pull to refresh
-    ${PULL_TO_REFRESH_JS}
-  })();
-`;
-
-export const JAEN_CSS = `
-  ${COMMON_MUNICIPALES_CSS}
-  /* Specific tweaks for Jaén if needed */
-  .container { width: 100% !important; padding: 10px !important; }
-  .btn-primary { background-color: #455A64 !important; border-color: #455A64 !important; }
-`;
-
 export const COMMON_PAPELETAS_CSS = `
-  /* Aggressive Hide for Headers and Footers in Papeletas */
   header, footer, nav, .navbar, #header, #footer,
   [class*="header"], [id*="header"],
   [class*="nav"], [id*="nav"],
@@ -149,167 +118,6 @@ export const COMMON_PAPELETAS_CSS = `
   }
 `;
 
-export interface SiteConfig {
-  url: string;
-  title: string;
-  subtitle?: string;
-  region?: string;
-  injectedCSS?: string;
-  injectedJS?: string;
-  backgroundColor?: string;
-  loadingColor?: string;
-  showPostOverlay?: boolean;
-  hasHeader?: boolean;
-  userAgent?: string;
-}
-
-export const MUNICIPALES_CONFIG: Record<string, SiteConfig> = {
-  arequipa: {
-    url: 'https://www.muniarequipa.gob.pe/oficina-virtual/c0nInfrPermisos/faltas/papeletas.php',
-    title: 'Arequipa',
-    region: 'Sur',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  cusco: {
-    url: 'https://cusco.gob.pe/informatica/index.php/',
-    title: 'Cusco',
-    region: 'Sur',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  huancayo: {
-    url: 'https://www.munihuancayo.gob.pe/papeletas/',
-    title: 'Huancayo',
-    region: 'Centro',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  piura: {
-    url: 'https://www.munipiura.gob.pe/papeletas/',
-    title: 'Piura',
-    region: 'Norte',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  puno: {
-    url: 'https://papeletas.munipuno.gob.pe/',
-    title: 'Puno',
-    region: 'Sur',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  tacna: {
-    url: 'https://www.munitacna.gob.pe/pagina/sf/servicios/papeletas',
-    title: 'Tacna',
-    region: 'Sur',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  ica: {
-    url: 'https://m.satica.gob.pe/consultapapeletas.php',
-    title: 'Ica',
-    region: 'Sur',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  trujillo: {
-    url: 'https://www.munitrujillo.gob.pe/',
-    title: 'Trujillo',
-    region: 'Norte',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  chiclayo: {
-    url: 'https://www.munichiclayo.gob.pe/',
-    title: 'Chiclayo',
-    region: 'Norte',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  iquitos: {
-    url: 'https://www.mpl.gob.pe/',
-    title: 'Iquitos',
-    region: 'Selva',
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-    injectedJS: PULL_TO_REFRESH_JS,
-  },
-  jaen: {
-    url: 'https://apps.munijaen.gob.pe/servicios/multas-transito',
-    title: 'Jaén',
-    region: 'Norte',
-    injectedCSS: JAEN_CSS,
-    injectedJS: JAEN_JS,
-  },
-};
-
-export const PAPELETAS_CONFIG: Record<string, SiteConfig> = {
-  sat: {
-    url: 'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx?mysession=ctyOpc97k9I2Oo0TSsT%2fycAs%2fnt41gNGCvnbaCaJLQQ%3d',
-    title: 'SAT Lima',
-    subtitle: 'Conectando con la web oficial...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  sutran: {
-    url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmRecordInfracciones.aspx',
-    title: 'SUTRAN',
-    subtitle: 'Conectando con la web oficial...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    showPostOverlay: true,
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  fotopit: {
-    url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmPapeletasCinemometro.aspx',
-    title: 'FotoPIT',
-    subtitle: 'Conectando con SUTRAN...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  callao: {
-    url: 'https://www.municallao.gob.pe/index.php/papeletas-transito',
-    title: 'Papeletas Callao',
-    subtitle: 'Conectando con la web oficial...',
-    backgroundColor: '#12102A',
-    loadingColor: '#E53935',
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  'orden-captura': {
-    url: 'https://www.sat.gob.pe/VirtualSAT/modulos/Capturas.aspx?mysession=',
-    title: 'Orden de Captura',
-    subtitle: 'Consultando base de datos SAT...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  internamiento: {
-    url: 'https://www.sat.gob.pe/VirtualSAT/modulos/ConsultaDeposito.aspx?mysession=',
-    title: 'Internamiento',
-    subtitle: 'Consultando depósitos SAT...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-  monto: {
-    url: 'https://webexterno.sutran.gob.pe/generarticket',
-    title: 'Monto Infracción',
-    subtitle: 'Generando ticket SUTRAN...',
-    backgroundColor: '#12102A',
-    loadingColor: '#7C5CBF',
-    showPostOverlay: true,
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_PAPELETAS_CSS,
-  },
-};
-
 export const SUNARP_CONOCE_CSS = `
   ${COMMON_MUNICIPALES_CSS}
   body {
@@ -319,14 +127,12 @@ export const SUNARP_CONOCE_CSS = `
     justify-content: flex-start !important;
     background: #F8FAFC !important;
   }
-  /* Hide specific SUNARP Conoce Aqui elements */
   .navbar, .footer, .header, #header, #footer,
   .logo, .brand, .btn-regresar, .sidebar,
   .linea-arcoiris, img[src*="logo"],
   .menu-secundario, .site-logo {
     display: none !important;
   }
-  /* Center the main content card */
   .container, .main-content, #divPrincipal, form, .card {
     width: 100% !important;
     max-width: 450px !important;
@@ -335,33 +141,73 @@ export const SUNARP_CONOCE_CSS = `
   }
 `;
 
+export interface SiteConfig {
+  url: string;
+  title: string;
+  subtitle?: string;
+  icon?: string;
+  color?: string;
+  region?: string;
+  injectedCSS?: string;
+  injectedJS?: string;
+  backgroundColor?: string;
+  loadingColor?: string;
+  showPostOverlay?: boolean;
+  userAgent?: string;
+}
+
+export const CATEGORIES = {
+  VEHICULAR: 'vehicular',
+  PAPELETAS: 'papeletas',
+  MUNICIPALES: 'municipales',
+  SEGUROS: 'seguros',
+  SEGURIDAD: 'seguridad',
+  SERVICIOS: 'servicios',
+};
+
+export const MUNICIPALES_CONFIG: Record<string, SiteConfig> = {
+  arequipa: { url: 'https://www.muniarequipa.gob.pe/oficina-virtual/c0nInfrPermisos/faltas/papeletas.php', title: 'Arequipa', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
+  cusco: { url: 'https://cusco.gob.pe/informatica/index.php/', title: 'Cusco', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
+  huancayo: { url: 'https://www.munihuancayo.gob.pe/papeletas/', title: 'Huancayo', region: 'Centro', injectedCSS: COMMON_MUNICIPALES_CSS },
+  piura: { url: 'https://www.munipiura.gob.pe/papeletas/', title: 'Piura', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
+  puno: { url: 'https://papeletas.munipuno.gob.pe/', title: 'Puno', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
+  tacna: { url: 'https://www.munitacna.gob.pe/pagina/sf/servicios/papeletas', title: 'Tacna', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
+  ica: { url: 'https://m.satica.gob.pe/consultapapeletas.php', title: 'Ica', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
+  trujillo: { url: 'https://www.munitrujillo.gob.pe/', title: 'Trujillo', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
+  chiclayo: { url: 'https://www.munichiclayo.gob.pe/', title: 'Chiclayo', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
+  iquitos: { url: 'https://www.mpl.gob.pe/', title: 'Iquitos', region: 'Selva', injectedCSS: COMMON_MUNICIPALES_CSS },
+  jaen: { url: 'https://apps.munijaen.gob.pe/servicios/multas-transito', title: 'Jaén', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
+};
+
+export const PAPELETAS_CONFIG: Record<string, SiteConfig> = {
+  sat: { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx?mysession=ctyOpc97k9I2Oo0TSsT%2fycAs%2fnt41gNGCvnbaCaJLQQ%3d', title: 'Papeletas Lima', subtitle: 'SAT Lima Infracciones', icon: 'file-document-outline', color: '#C8102E' },
+  callao: { url: 'https://www.municallao.gob.pe/index.php/papeletas-transito', title: 'Papeletas Callao', subtitle: 'Infracciones Callao', icon: 'file-document-outline', color: '#C8102E' },
+  sutran: { url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmRecordInfracciones.aspx', title: 'SUTRAN', subtitle: 'Récord de Infracciones', icon: 'highway', color: '#F57C00' },
+  fotopit: { url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmPapeletasCinemometro.aspx', title: 'Foto Papeletas', subtitle: 'FotoPIT — Cinemómetros', icon: 'camera-outline', color: '#6A1B9A' },
+  'orden-captura': { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/Capturas.aspx?mysession=', title: 'Orden de Captura', subtitle: 'Vehículos con captura SAT', icon: 'car-emergency', color: '#C8102E' },
+};
+
 export const VEHICULAR_CONFIG: Record<string, SiteConfig> = {
-  citv: {
-    url: 'https://portal.mtc.gob.pe/servicios/consultas_citv.html',
-    title: 'Inspección Técnica',
-    subtitle: 'Consultando CITV (MTC)...',
-    backgroundColor: '#002B5C',
-    loadingColor: '#FFD600',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-  },
-  gnv: {
-    url: 'https://www.infogas.com.pe/consultas/consulta-de-vehiculo/',
-    title: 'Certificado GNV/GLP',
-    subtitle: 'Consultando Infogas...',
-    backgroundColor: '#E64A19',
-    loadingColor: '#ffffff',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: COMMON_MUNICIPALES_CSS,
-  },
-  duenos: {
-    url: 'https://conoce-aqui.sunarp.gob.pe/conoce-aqui/inicio',
-    title: 'Historial de Dueños',
-    subtitle: 'Conectando con SUNARP...',
-    backgroundColor: '#D32F2F',
-    loadingColor: '#ffffff',
-    userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-    injectedJS: PULL_TO_REFRESH_JS,
-    injectedCSS: SUNARP_CONOCE_CSS,
-  }
+  sunarp: { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/ConsultaVehicular.aspx', title: 'Consulta Vehicular', subtitle: 'SUNARP / SAT Lima', icon: 'search-outline', color: '#C8102E' },
+  duenos: { url: 'https://conoce-aqui.sunarp.gob.pe/conoce-aqui/inicio', title: 'Historial de Dueños', subtitle: 'SUNARP Conoce Aquí', icon: 'history', color: '#002B5C', userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36', injectedCSS: SUNARP_CONOCE_CSS },
+  citv: { url: 'https://portal.mtc.gob.pe/servicios/consultas_citv.html', title: 'Inspección Técnica', subtitle: 'Estado de revisiones (CITV)', icon: 'hammer-outline', color: '#7B1FA2' },
+  gnv: { url: 'https://www.infogas.com.pe/consultas/consulta-de-vehiculo/', title: 'Vigencia GNV/GLP', subtitle: 'Certificación de gas', icon: 'flame-outline', color: '#E64A19' },
+};
+
+export const SEGUROS_CONFIG: Record<string, SiteConfig> = {
+  soat: { url: 'https://www.apeseg.org.pe/consultas-soat/', title: 'Consulta SOAT', subtitle: 'Vigencia en APESEG', icon: 'shield-check', color: '#2E7D32' },
+  precios: { url: 'https://www.comparabien.com.pe/seguros-vehiculares', title: 'Precios Referenciales', subtitle: 'Comparativa de seguros', icon: 'tag-multiple-outline', color: '#002B5C' },
+};
+
+export const SEGURIDAD_CONFIG: Record<string, SiteConfig> = {
+  lunas: { url: 'https://www.gob.pe/10041-consultar-estado-de-lunas-polarizadas', title: 'Lunas Polarizadas', subtitle: 'Vigencia PNP', icon: 'car-wash', color: '#002B5C' },
+  robo: { url: 'https://www.pnp.gob.pe/servicios/requisitorias_robo', title: 'Requisitorias por Robo', subtitle: 'Orden de captura policial', icon: 'shield-search', color: '#C62828' },
+};
+
+export const APP_SITES: Record<string, Record<string, SiteConfig>> = {
+  [CATEGORIES.VEHICULAR]: VEHICULAR_CONFIG,
+  [CATEGORIES.PAPELETAS]: PAPELETAS_CONFIG,
+  [CATEGORIES.MUNICIPALES]: MUNICIPALES_CONFIG,
+  [CATEGORIES.SEGUROS]: SEGUROS_CONFIG,
+  [CATEGORIES.SEGURIDAD]: SEGURIDAD_CONFIG,
 };

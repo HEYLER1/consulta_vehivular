@@ -64,7 +64,7 @@ function VehiculoScreen() {
             title="Consulta vehicular (SUNARP)" 
             subtitle="Datos de tarjeta de propiedad" 
             color={theme.brandRojo} 
-            onPress={() => navigateToService('/sunarp-webview')} 
+            onPress={() => checkPlateAndNavigate('/viewer/vehicular/sunarp')} 
           />
           <OptionItem 
             icon="history" 
@@ -72,28 +72,28 @@ function VehiculoScreen() {
             title="Historial de Propietarios" 
             subtitle="Transferencias registradas" 
             color="#002B5C" 
-            onPress={() => checkPlateAndNavigate('/vehiculo/duenos')} 
+            onPress={() => checkPlateAndNavigate('/viewer/vehicular/duenos')} 
           />
           <OptionItem 
             icon="cash-outline" 
             title="Precio pagado" 
             subtitle="Valor de transferencia" 
             color="#388E3C" 
-            onPress={() => checkPlateAndNavigate('/sunarp-webview')} 
+            onPress={() => checkPlateAndNavigate('/viewer/vehicular/sunarp')} 
           />
           <OptionItem 
             icon="hammer-outline" 
             title="Inspección técnica" 
             subtitle="Estado de revisiones (CITV)" 
             color="#7B1FA2" 
-            onPress={() => checkPlateAndNavigate('/papeletas/citv')} 
+            onPress={() => checkPlateAndNavigate('/viewer/vehicular/citv')} 
           />
           <OptionItem 
             icon="flame-outline" 
             title="Vigencia GNV/GLP" 
             subtitle="Certificación de gas" 
             color="#E64A19" 
-            onPress={() => checkPlateAndNavigate('/papeletas/gnv')} 
+            onPress={() => checkPlateAndNavigate('/viewer/vehicular/gnv')} 
             isLast={true}
           />
         </View>

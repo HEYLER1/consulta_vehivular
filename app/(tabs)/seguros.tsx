@@ -2,6 +2,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StatusBar, StyleSheet, View, useColorScheme } from 'react-native';
 import { OptionItem } from '@/components/OptionItem';
@@ -9,18 +10,21 @@ import { Colors } from '@/constants/theme';
 
 const OPTIONS = [
   {
+    slug: 'soat',
     icon: 'shield-check',
     title: 'Consulta SOAT (APESEG)',
     subtitle: 'Verifica la vigencia de tu seguro obligatorio',
     color: '#2E7D32',
   },
   {
+    slug: 'precios',
     icon: 'tag-multiple-outline',
     title: 'Precios Referenciales',
     subtitle: 'Costos aproximados de seguros vehiculares',
     color: '#002B5C',
   },
   {
+    slug: 'siniestros',
     icon: 'car-emergency',
     title: 'Choques y Siniestros',
     subtitle: 'Protocolo de acción ante accidentes',
@@ -29,6 +33,7 @@ const OPTIONS = [
 ];
 
 export default function SegurosScreen() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
 
@@ -57,7 +62,7 @@ export default function SegurosScreen() {
               subtitle={item.subtitle}
               color={item.color}
               isLast={index === OPTIONS.length - 1}
-              onPress={() => {}}
+              onPress={() => router.push(`/viewer/seguros/${item.slug}`)}
             />
           ))}
         </View>
