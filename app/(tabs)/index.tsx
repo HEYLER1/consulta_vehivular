@@ -117,9 +117,9 @@ const styles = StyleSheet.create({
   quickActionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   actionCard: { 
     flexBasis: '46%',
-    flexGrow: 1, 
+    flexGrow: 1,
     borderRadius: 18, 
-    padding: 12, 
+    padding: 12,
     flexDirection: 'row', 
     alignItems: 'center', 
     gap: 12,
