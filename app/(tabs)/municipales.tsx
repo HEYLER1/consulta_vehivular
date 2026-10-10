@@ -1,347 +1,48 @@
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { MUNICIPALES_CONFIG } from '@/constants/sites';
+import { Colors } from '@/constants/theme';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useState, useMemo } from 'react';
-import {
-  FlatList, StyleSheet, TextInput,
-  TouchableOpacity, View,
-  Dimensions, useColorScheme
-} from 'react-native';
-import { Colors } from '@/constants/theme';
-
-const { width } = Dimensions.get('window');
-
-const CIUDADES = [
-  { id: '1',  nombre: 'Trujillo',    region: 'Norte',  ruta: '/viewer/municipales/trujillo', popular: true },
-  { id: '2',  nombre: 'Cajamarca',   region: 'Norte',  ruta: '/viewer/municipales/cajamarca' },
-  { id: '3',  nombre: 'Chimbote',    region: 'Norte',  ruta: '/viewer/municipales/chimbote' },
-  { id: '4',  nombre: 'Chiclayo',    region: 'Norte',  ruta: '/viewer/municipales/chiclayo' },
-  { id: '5',  nombre: 'Chachapoyas', region: 'Norte',  ruta: '/viewer/municipales/chachapoyas' },
-  { id: '6',  nombre: 'Jaén',        region: 'Norte',  ruta: '/viewer/municipales/jaen' },
-  { id: '7',  nombre: 'Piura',       region: 'Norte',  ruta: '/viewer/municipales/piura', popular: true },
-  { id: '8',  nombre: 'Tumbes',      region: 'Norte',  ruta: '/viewer/municipales/tumbes' },
-  { id: '9',  nombre: 'Tarapoto',    region: 'Norte',  ruta: '/viewer/municipales/tarapoto' },
-  { id: '10', nombre: 'Huancayo',    region: 'Centro', ruta: '/viewer/municipales/huancayo' },
-  { id: '11', nombre: 'Pucallpa',    region: 'Centro', ruta: '/viewer/municipales/pucallpa' },
-  { id: '12', nombre: 'Huánuco',     region: 'Centro', ruta: '/viewer/municipales/huanuco' },
-  { id: '13', nombre: 'Andahuaylas', region: 'Centro', ruta: '/viewer/municipales/andahuaylas' },
-  { id: '14', nombre: 'Ica',         region: 'Sur',    ruta: '/viewer/municipales/ica', popular: true },
-  { id: '15', nombre: 'Arequipa',    region: 'Sur',    ruta: '/viewer/municipales/arequipa', popular: true },
-  { id: '16', nombre: 'Cusco',       region: 'Sur',    ruta: '/viewer/municipales/cusco', popular: true },
-  { id: '17', nombre: 'Tacna',       region: 'Sur',    ruta: '/viewer/municipales/tacna' },
-  { id: '19', nombre: 'Puno',        region: 'Sur',    ruta: '/viewer/municipales/puno' },
-];
-
-type Tab = 'Todo' | 'Norte' | 'Centro' | 'Sur';
-
-const TABS: { label: Tab; color: string; icon: string }[] = [
-  { label: 'Todo',   color: '#1A237E', icon: 'apps' },
-  { label: 'Norte',  color: '#0D47A1', icon: 'boat' },
-  { label: 'Centro', color: '#1B5E20', icon: 'business' },
-  { label: 'Sur',    color: '#B71C1C', icon: 'mountain-outline' },
-];
-
-const REGION_COLORS: Record<string, string> = {
-  Norte:  '#1976D2',
-  Centro: '#388E3C',
-  Sur:    '#D32F2F',
-};
-
-const REGION_BG: Record<string, string> = {
-  Norte:  '#E3F2FD',
-  Centro: '#E8F5E9',
-  Sur:    '#FFEBEE',
-};
-
-// --- Componente de Cabecera extraído para evitar remounting y cierre de teclado ---
-const ListHeader = ({ 
-  search, 
-  setSearch, 
-  activeTab, 
-  setActiveTab, 
-  populares, 
-  router,
-  showTitle,
-  theme
-}: any) => (
-  <View>
-    <View style={[styles.heroBanner, { backgroundColor: theme.brandAzul }]}>
-      <View style={[styles.searchBar, { backgroundColor: theme.background }]}>
-        <Ionicons name="search" size={20} color="#90A4AE" style={{ marginRight: 10 }} />
-        <TextInput
-          placeholder="¿En qué ciudad buscas multas?"
-          style={[styles.input, { color: theme.textoTitulo }]}
-          value={search}
-          onChangeText={setSearch}
-          placeholderTextColor="#90A4AE"
-        />
-        {search.length > 0 && (
-          <TouchableOpacity onPress={() => setSearch('')}>
-            <Ionicons name="close-circle" size={20} color="#CFD8DC" />
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-
-    <View style={styles.tabsContainer}>
-      {TABS.map(({ label, color, icon }) => {
-        const isActive = activeTab === label;
-        return (
-          <TouchableOpacity
-            key={label}
-            style={[styles.tab, { backgroundColor: theme.background }, isActive && { backgroundColor: color, borderColor: color }]}
-            onPress={() => setActiveTab(label)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name={icon as any} size={18} color={isActive ? theme.brandOro : '#78909C'} />
-            <ThemedText style={[styles.tabText, { color: isActive ? theme.background : theme.textoMuted }]}>
-              {label}
-            </ThemedText>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-
-    {!search && populares.length > 0 && (
-      <View style={styles.popularSection}>
-        <ThemedText style={[styles.sectionTitle, { color: theme.textoTitulo }]}>Ciudades con más tráfico</ThemedText>
-        <View style={styles.popularGrid}>
-          {populares.slice(0, 4).map((city: any) => (
-            <TouchableOpacity 
-              key={city.id} 
-              style={styles.popularCard}
-              onPress={() => router.push(city.ruta as any)}
-            >
-              <View style={[styles.popularIcon, { backgroundColor: REGION_COLORS[city.region] }]}>
-                <ThemedText style={styles.popularInitial}>{city.nombre[0]}</ThemedText>
-              </View>
-              <ThemedText style={[styles.popularName, { color: theme.textoTitulo }]} numberOfLines={1}>{city.nombre}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    )}
-
-    {showTitle && (
-      <ThemedText style={[styles.sectionTitle, { color: theme.textoTitulo }]}>Todas las Municipalidades</ThemedText>
-    )}
-  </View>
-);
-
+import { usePlate } from '@/components/PlateContext';
+import { MunicipalBatchSearch } from '@/components/MunicipalBatchSearch';
+import { normalizeMunicipalPlate } from '@/utils/municipal-automation';
+const FILTERS = [['all', 'Todas'], ['automatic', 'Automáticas'], ['manual', 'Con CAPTCHA'], ['unverified', 'Por verificar']] as const;
 export default function MunicipalesScreen() {
-  const [search, setSearch]       = useState('');
-  const [activeTab, setActiveTab] = useState<Tab>('Todo');
+  const { plate, setPlate } = usePlate();
+  const [query, setQuery] = useState<{ plate: string; runId: string } | null>(null);
+  const [error, setError] = useState('');
+  const [filter, setFilter] = useState<string>('all');
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'light'];
+  const theme = Colors[useColorScheme() ?? 'light'];
+  const sources = Object.entries(MUNICIPALES_CONFIG);
+  const consult = () => {
+    const normalized = normalizeMunicipalPlate(plate);
+    if (!/^[A-Z0-9]{6}$/.test(normalized)) { setError('Ingresa una placa de 6 letras o números.'); return; }
+    setError(''); setQuery({ plate: normalized, runId: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
+  };
+  return <ThemedView style={{ flex: 1, backgroundColor: theme.backgroundGris }}><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <View style={[styles.searchCard, { backgroundColor: theme.background }]}>
+      <ThemedText style={styles.cardTitle}>Consultar por placa</ThemedText>
+      <View style={[styles.inputWrap, { backgroundColor: theme.backgroundGris, borderColor: error ? '#DC3545' : theme.border }]}><View style={styles.plateCountry}><ThemedText style={styles.country}>PE</ThemedText></View><TextInput accessibilityLabel="Placa municipal" placeholder="A4D234" placeholderTextColor={theme.textoMuted} value={plate} onChangeText={text => { setPlate(text.toUpperCase()); setError(''); }} autoCapitalize="characters" autoCorrect={false} maxLength={7} style={[styles.input, { color: theme.textoTitulo }]} /></View>
+      {!!error && <ThemedText accessibilityRole="alert" style={styles.error}>{error}</ThemedText>}
+      <TouchableOpacity accessibilityRole="button" onPress={consult} activeOpacity={0.85} style={styles.button}><Ionicons name="search" size={21} color="#FFFFFF" /><ThemedText style={styles.buttonText}>Consultar municipios</ThemedText><Ionicons name="arrow-forward" size={20} color="#FFFFFF" /></TouchableOpacity>
 
-  const { populares, filtered } = useMemo(() => {
-    const matched = CIUDADES.filter(c => {
-      const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase());
-      const matchTab    = activeTab === 'Todo' || c.region === activeTab;
-      return matchSearch && matchTab;
-    });
-
-    return {
-      populares: matched.filter(c => c.popular),
-      filtered: matched
-    };
-  }, [search, activeTab]);
-
-  return (
-    <ThemedView style={[styles.container, { backgroundColor: theme.backgroundGris }]}>
-      <FlatList
-        data={filtered}
-        keyExtractor={item => item.id}
-        ListHeaderComponent={
-          <ListHeader 
-            search={search}
-            setSearch={setSearch}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            populares={populares}
-            router={router}
-            showTitle={filtered.length > 0}
-            theme={theme}
-          />
-        }
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.cityCard, { backgroundColor: theme.background, borderColor: theme.backgroundGris }]}
-            activeOpacity={0.7}
-            onPress={() => router.push(item.ruta as any)}
-          >
-            <View style={[styles.cityIconWrap, { backgroundColor: REGION_BG[item.region] }]}>
-              <MaterialCommunityIcons 
-                name="city-variant-outline" 
-                size={22} 
-                color={REGION_COLORS[item.region]} 
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <ThemedText style={[styles.cityName, { color: theme.textoTitulo }]}>
-                {item.nombre}
-              </ThemedText>
-              <View style={styles.regionTag}>
-                <View style={[styles.regionDot, { backgroundColor: REGION_COLORS[item.region] }]} />
-                <ThemedText style={styles.regionText}>
-                  Perú {item.region}
-                </ThemedText>
-              </View>
-            </View>
-            <View style={styles.chevronWrap}>
-              <Ionicons name="chevron-forward" size={20} color="#B0BEC5" />
-            </View>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="search-outline" size={64} color="#ECEFF1" />
-            <ThemedText style={styles.emptyText}>No encontramos resultados para tu búsqueda</ThemedText>
-          </View>
-        }
-      />
-    </ThemedView>
-  );
+    </View>
+    {query && <MunicipalBatchSearch key={query.runId} plate={query.plate} runId={query.runId} />}
+    <View style={styles.sectionHeader}><ThemedText style={styles.subtitle}>Municipios</ThemedText><ThemedText style={{ color: theme.textoMuted }}>{sources.length} fuentes</ThemedText></View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>{FILTERS.map(([value, label]) => <TouchableOpacity key={value} accessibilityRole="button" accessibilityState={{ selected: filter === value }} onPress={() => setFilter(value)} style={[styles.chip, { backgroundColor: filter === value ? '#26378B' : theme.background, borderColor: filter === value ? '#26378B' : theme.border }]}><ThemedText style={{ fontSize: 12, fontWeight: '700', color: filter === value ? '#FFFFFF' : theme.textoMuted }}>{label}</ThemedText></TouchableOpacity>)}</ScrollView>
+    {sources.filter(([, c]) => filter === 'all' || (filter === 'unverified' ? !['automatic', 'manual'].includes(c.consultationMode ?? '') : c.consultationMode === filter)).map(([slug, config]) => {
+      const automatic = config.consultationMode === 'automatic', manual = config.consultationMode === 'manual';
+      const color = automatic ? '#087D70' : manual ? '#AF690C' : theme.textoMuted;
+      return <TouchableOpacity accessibilityRole="button" key={slug} activeOpacity={0.75} style={[styles.source, { backgroundColor: theme.background, borderColor: theme.border }]} onPress={() => router.push({ pathname: '/viewer/[category]/[slug]', params: { category: 'municipales', slug, plate: normalizeMunicipalPlate(plate) } })}>
+        <View style={[styles.sourceIcon, { backgroundColor: theme.backgroundGris }]}><Ionicons name="business-outline" size={23} color={theme.tint} /></View><View style={{ flex: 1 }}><ThemedText style={styles.sourceTitle}>{config.title}</ThemedText><View style={styles.statusLine}><View style={[styles.dot, { backgroundColor: color }]} /><ThemedText style={{ fontSize: 12, color }}>{automatic ? 'Automática' : manual ? 'CAPTCHA' : 'Por verificar'}</ThemedText></View></View><Ionicons name="chevron-forward" size={19} color={theme.textoMuted} />
+      </TouchableOpacity>;
+    })}
+  </ScrollView></ThemedView>;
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  listContent: { paddingBottom: 30 },
-
-  heroBanner: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
-    marginBottom: 20,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 20,
-    gap: 8,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#ECEFF1',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  tabText: { fontSize: 12, fontWeight: '700' },
-
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 56,
-    borderWidth: 1,
-    borderColor: '#ECEFF1',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-  },
-  input: { flex: 1, fontSize: 16, fontWeight: '500' },
-
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-
-  popularSection: { marginBottom: 30 },
-  popularGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  popularCard: {
-    width: (width - 32 - 36) / 4,
-    alignItems: 'center',
-    gap: 8,
-  },
-  popularIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-  },
-  popularInitial: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  popularName: { fontSize: 12, fontWeight: '700', textAlign: 'center' },
-
-  cityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 12,
-    padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 5,
-  },
-  cityIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  cityName: { fontSize: 17, fontWeight: '800' },
-  regionTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    gap: 6,
-  },
-  regionDot: { width: 8, height: 8, borderRadius: 4 },
-  regionText: { fontSize: 12, color: '#78909C', fontWeight: '600' },
-  chevronWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F8FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  emptyState: {
-    alignItems: 'center',
-    marginTop: 40,
-    paddingHorizontal: 40,
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 16,
-    color: '#90A4AE',
-    fontSize: 15,
-    lineHeight: 22,
-  },
+  content: { padding: 16, paddingBottom: 24 }, hero: { backgroundColor: '#172B58', padding: 24, borderRadius: 26, marginBottom: 18 }, heroTop: { flexDirection: 'row', alignItems: 'center', gap: 12 }, heroIcon: { width: 46, height: 46, borderRadius: 14, backgroundColor: '#304572', alignItems: 'center', justifyContent: 'center' }, eyebrow: { fontSize: 11, letterSpacing: 1.4, color: '#B9C9ED', fontWeight: '800' }, title: { fontSize: 34, lineHeight: 40, fontWeight: '800', color: '#FFFFFF', marginTop: 20 }, heroText: { color: '#D4DEF1', fontSize: 14, lineHeight: 21, marginTop: 10 }, heroBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 20 }, badgeText: { color: '#8FE5D8', fontSize: 12, fontWeight: '700', flexShrink: 1 }, searchCard: { padding: 16, borderRadius: 18, marginBottom: 4 }, cardTitle: { fontSize: 18, fontWeight: '800' }, helper: { fontSize: 13, marginTop: 4 }, inputWrap: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 15, marginVertical: 12, minHeight: 52 }, plateCountry: { paddingHorizontal: 17, borderRightWidth: 1, borderRightColor: '#CBD5E1' }, country: { fontSize: 13, fontWeight: '800', color: '#66809F' }, input: { flex: 1, paddingHorizontal: 18, fontSize: 24, letterSpacing: 2, fontWeight: '800', minHeight: 52 }, button: { backgroundColor: '#26378B', padding: 13, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }, buttonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16, flex: 1 }, hint: { flexDirection: 'row', gap: 7, marginTop: 14 }, hintText: { fontSize: 12, lineHeight: 18, flex: 1 }, error: { color: '#DC3545', fontSize: 13, marginBottom: 12 }, sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, marginBottom: 10 }, subtitle: { fontSize: 18, fontWeight: '800' }, filters: { gap: 8, paddingBottom: 12 }, chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 22, borderWidth: 1 }, source: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, borderWidth: 1, marginBottom: 8 }, sourceIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }, sourceTitle: { fontSize: 15, fontWeight: '700' }, statusLine: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 5 }, dot: { width: 6, height: 6, borderRadius: 3 }, footer: { textAlign: 'center', fontSize: 12, marginTop: 14 },
 });

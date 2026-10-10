@@ -154,6 +154,8 @@ export interface SiteConfig {
   loadingColor?: string;
   showPostOverlay?: boolean;
   userAgent?: string;
+  consultationMode?: "automatic" | "manual" | "unverified";
+  consultationNote?: string;
 }
 
 export const CATEGORIES = {
@@ -165,23 +167,30 @@ export const CATEGORIES = {
   SERVICIOS: 'servicios',
 };
 
+// Fuentes candidatas: la respuesta real y la compatibilidad WebView se validan en el piloto.
 export const MUNICIPALES_CONFIG: Record<string, SiteConfig> = {
-  arequipa: { url: 'https://www.muniarequipa.gob.pe/oficina-virtual/c0nInfrPermisos/faltas/papeletas.php', title: 'Arequipa', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
-  cusco: { url: 'https://cusco.gob.pe/informatica/index.php/', title: 'Cusco', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
-  huancayo: { url: 'https://www.munihuancayo.gob.pe/papeletas/', title: 'Huancayo', region: 'Centro', injectedCSS: COMMON_MUNICIPALES_CSS },
-  piura: { url: 'https://www.munipiura.gob.pe/papeletas/', title: 'Piura', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
-  puno: { url: 'https://papeletas.munipuno.gob.pe/', title: 'Puno', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
-  tacna: { url: 'https://www.munitacna.gob.pe/pagina/sf/servicios/papeletas', title: 'Tacna', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
-  ica: { url: 'https://m.satica.gob.pe/consultapapeletas.php', title: 'Ica', region: 'Sur', injectedCSS: COMMON_MUNICIPALES_CSS },
-  trujillo: { url: 'https://www.munitrujillo.gob.pe/', title: 'Trujillo', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
-  chiclayo: { url: 'https://www.munichiclayo.gob.pe/', title: 'Chiclayo', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
-  iquitos: { url: 'https://www.mpl.gob.pe/', title: 'Iquitos', region: 'Selva', injectedCSS: COMMON_MUNICIPALES_CSS },
-  jaen: { url: 'https://apps.munijaen.gob.pe/servicios/multas-transito', title: 'Jaén', region: 'Norte', injectedCSS: COMMON_MUNICIPALES_CSS },
+  ica: { url: 'https://m.satica.gob.pe/consultapapeletas_web.php', title: 'SAT Ica', region: 'Sur', consultationMode: 'automatic' },
+  chiclayo: { url: 'https://virtualsatch.satch.gob.pe/virtualsatch/record_infracciones/buscar_placa_', title: 'SATCH Chiclayo', region: 'Norte', consultationMode: 'automatic' },
+  piura: { url: 'https://web.satp.gob.pe/servicios/consulta-en-linea', title: 'SAT Piura', region: 'Norte', consultationMode: 'automatic' },
+  arequipa: { url: 'https://www.muniarequipa.gob.pe/oficina-virtual/c0nInfrPermisos/faltas/papeletas.php', title: 'Municipalidad de Arequipa', region: 'Sur', consultationMode: 'automatic', consultationNote: 'Consulta por placa. Si aparece una verificación de seguridad, continúa manualmente.' },
+  cusco: { url: 'https://cusco.gob.pe/informatica/index.php/', title: 'Municipalidad del Cusco', region: 'Sur', consultationMode: 'automatic' },
+  huanuco: { url: 'https://www.munihuanuco.gob.pe/wp-content/servicios/transportes/gt_papeletas.php', title: 'Municipalidad de Huánuco', region: 'Centro', consultationMode: 'automatic' },
+  pucallpa: { url: 'http://consultas.municportillo.gob.pe:85/consultaVehiculo/consulta/', title: 'Municipalidad de Coronel Portillo (Pucallpa)', region: 'Oriente', consultationMode: 'automatic', consultationNote: 'El portal municipal usa HTTP.' },
+  cajamarca: { url: 'https://www.satcajamarca.gob.pe/consultas?vplaca={plate}', title: 'SAT Cajamarca', region: 'Norte', consultationMode: 'automatic' },
+  lima: { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx', title: 'SAT Lima', region: 'Centro', consultationMode: 'unverified', consultationNote: 'El acceso usa una sesión y marcos. Automatización pendiente de verificación.' },
+  callao: { url: 'https://pagopapeletascallao.pe/', title: 'Municipalidad del Callao', region: 'Centro', consultationMode: 'manual', consultationNote: 'Requiere código de seguridad (CAPTCHA).' },
+  tacna: { url: 'https://www.munitacna.gob.pe/pagina/sf/servicios/papeletas', title: 'Municipalidad de Tacna', region: 'Sur', consultationMode: 'manual', consultationNote: 'Requiere código de verificación (CAPTCHA).' },
+  tarapoto: { url: 'https://www.sat-t.gob.pe/', title: 'SAT Tarapoto', region: 'Oriente', consultationMode: 'manual', consultationNote: 'El formulario contiene CAPTCHA.' },
+  trujillo: { url: 'https://digital.satt.gob.pe/sigo/servicios/Record%20de%20Infracciones/registro.asp', title: 'SATT Trujillo', region: 'Norte', consultationMode: 'unverified', consultationNote: 'El formulario de destino no respondió durante la revisión.' },
+  huancayo: { url: 'http://sathuancayo.fortiddns.com:888/VentanillaVirtual/ConsultaPIT.aspx', title: 'SAT Huancayo', region: 'Centro', consultationMode: 'unverified', consultationNote: 'El servidor rechazó la conexión durante la revisión.' },
+  chachapoyas: { url: 'https://app.munichachapoyas.gob.pe/servicios/consulta_papeletas/app/papeletas.php', title: 'Municipalidad de Chachapoyas', region: 'Oriente', consultationMode: 'unverified', consultationNote: 'El portal agotó el tiempo de conexión. CAPTCHA sin verificar.' },
+  andahuaylas: { url: 'https://muniandahuaylas.gob.pe/consultar-papeleta/', title: 'Municipalidad de Andahuaylas', region: 'Sur', consultationMode: 'unverified', consultationNote: 'El portal bloqueó el acceso durante la revisión (HTTP 403).' },
 };
 
 export const PAPELETAS_CONFIG: Record<string, SiteConfig> = {
-  sat: { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx?mysession=ctyOpc97k9I2Oo0TSsT%2fycAs%2fnt41gNGCvnbaCaJLQQ%3d', title: 'Papeletas Lima', subtitle: 'SAT Lima Infracciones', icon: 'file-document-outline', color: '#C8102E' },
-  callao: { url: 'https://www.municallao.gob.pe/index.php/papeletas-transito', title: 'Papeletas Callao', subtitle: 'Infracciones Callao', icon: 'file-document-outline', color: '#C8102E' },
+  atu: { url: "https://pasarela.atu.gob.pe/", title: "ATU", subtitle: "Multas de transporte en Lima y Callao", icon: "bus-outline", color: "#26378B" },
+  sat: { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/papeletas.aspx', title: 'Papeletas Lima', subtitle: 'SAT Lima Infracciones', icon: 'file-document-outline', color: '#C8102E' },
+  callao: { url: 'https://pagopapeletascallao.pe/', title: 'Papeletas Callao', subtitle: 'Infracciones Callao', icon: 'file-document-outline', color: '#C8102E' },
   sutran: { url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmRecordInfracciones.aspx', title: 'SUTRAN', subtitle: 'Récord de Infracciones', icon: 'highway', color: '#F57C00' },
   fotopit: { url: 'https://webexterno.sutran.gob.pe/WebExterno/Pages/frmPapeletasCinemometro.aspx', title: 'Foto Papeletas', subtitle: 'FotoPIT — Cinemómetros', icon: 'camera-outline', color: '#6A1B9A' },
   'orden-captura': { url: 'https://www.sat.gob.pe/VirtualSAT/modulos/Capturas.aspx?mysession=', title: 'Orden de Captura', subtitle: 'Vehículos con captura SAT', icon: 'car-emergency', color: '#C8102E' },

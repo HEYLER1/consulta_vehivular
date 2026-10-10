@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, TextInput, TouchableOpacity, View, Alert, useColorScheme } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Modal, StyleSheet, TextInput, TouchableOpacity, View, useColorScheme } from 'react-native';
+import PlateScanner from './scanner/PlateScanner';
 import { ThemedText } from './themed-text';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
@@ -10,6 +11,7 @@ interface PlacaVirtualProps {
 }
 
 export function PlacaVirtual({ placa, onChangePlaca }: PlacaVirtualProps) {
+  const [scannerOpen, setScannerOpen] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
@@ -19,17 +21,18 @@ export function PlacaVirtual({ placa, onChangePlaca }: PlacaVirtualProps) {
   }, [fadeAnim]);
 
   return (
-    <Animated.View style={[styles.placaContainer, { opacity: fadeAnim, borderColor: theme.brandAzul, backgroundColor: theme.background }]}>
+    <Animated.View style={[styles.placaContainer, { opacity: fadeAnim, borderColor: theme.border, backgroundColor: theme.background }]}>
       <View style={[styles.placaHeader, { backgroundColor: theme.background }]}>
         <View style={[styles.placaStrip, { backgroundColor: theme.brandOro }]} />
-        <ThemedText style={[styles.placaLabel, { color: theme.brandAzul }]}>PERÚ</ThemedText>
+        <ThemedText style={[styles.placaLabel, { color: theme.tint }]}>PERÚ</ThemedText>
         <View style={styles.placaLogoWrap}>
-          <MaterialCommunityIcons name="shield-check" size={24} color={theme.brandAzul} />
+          <MaterialCommunityIcons name="car-outline" size={24} color={theme.brandAzul} />
         </View>
       </View>
       <View style={styles.placaContent}>
         <TextInput 
-          style={[styles.placaTitle, { color: theme.brandAzul }]}
+          accessibilityLabel="Número de placa"
+          style={[styles.placaTitle, { color: theme.tint }]}
           placeholder="ABC-123"
           placeholderTextColor="#90A4AE"
           value={placa}
@@ -37,35 +40,38 @@ export function PlacaVirtual({ placa, onChangePlaca }: PlacaVirtualProps) {
           autoCapitalize="characters"
           maxLength={7}
         />
-        <ThemedText style={styles.placaSubtitle}>TOCA PARA EDITAR PLACA</ThemedText>
+        <ThemedText style={styles.placaSubtitle}>INGRESA O ESCANEA TU PLACA</ThemedText>
       </View>
       
       <TouchableOpacity 
+        accessibilityRole="button"
+        accessibilityLabel="Escanear placa con la cámara"
         style={[styles.scanBadge, { backgroundColor: theme.brandOro }]} 
-        onPress={() => Alert.alert("Escáner", "Escáner desactivado temporalmente")}
+        onPress={() => setScannerOpen(true)}
         activeOpacity={0.8}
       >
         <Ionicons name="camera" size={20} color={theme.brandAzul} />
-        <ThemedText style={[styles.scanText, { color: theme.brandAzul }]}>ESCANEAR PLACA</ThemedText>
+        <ThemedText style={[styles.scanText, { color: theme.tint }]}>ESCANEAR PLACA</ThemedText>
       </TouchableOpacity>
+      <Modal visible={scannerOpen} animationType="slide" onRequestClose={() => setScannerOpen(false)}>
+        {scannerOpen && <PlateScanner onClose={() => setScannerOpen(false)} onConfirm={value => { onChangePlaca(value); setScannerOpen(false); }} />}
+      </Modal>
 
-      <View style={[styles.placaFooter, { backgroundColor: theme.brandAzul }]}>
-        <ThemedText style={styles.placaFooterText}>PLACA ÚNICA NACIONAL DE RODAJE</ThemedText>
-      </View>
+
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   placaContainer: {
-    borderRadius: 15,
-    borderWidth: 5,
+    borderRadius: 18,
+    borderWidth: 1,
     overflow: 'hidden',
-    marginBottom: 25,
-    elevation: 10,
+    marginBottom: 18,
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.06,
     shadowRadius: 10,
     alignItems: 'center',
   },
@@ -82,7 +88,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '100%',
-    height: 6,
+    height: 3,
   },
   placaLabel: {
     fontSize: 16,
@@ -94,12 +100,12 @@ const styles = StyleSheet.create({
     right: 12,
   },
   placaContent: {
-    paddingVertical: 20,
+    paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
   },
   placaTitle: {
-    fontSize: 54,
+    fontSize: 34,
     fontWeight: '900',
     letterSpacing: -1,
     textAlign: 'center',
@@ -119,7 +125,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
-    marginBottom: 20,
+    marginBottom: 12,
     gap: 8,
     elevation: 3,
   },

@@ -41,3 +41,15 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Local Android build tools and generated installers
+/.local-build/
+/artifacts/*.apk
+
+# Local evidence, documents and presentation build files
+/.slide-build/
+/.chart-data-*/
+/artifacts/
+/piloto/
+/*.apk
+/*.docx

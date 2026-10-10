@@ -1,3 +1,4 @@
+import { buildPlateFillScript } from '@/utils/plate-autofill';
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView, WebViewProps } from 'react-native-webview';
@@ -33,38 +34,7 @@ export function AppWebView({
   const hasLoadedOnce = useRef(false);
   const webViewRef = useRef<WebView>(null);
 
-  const INJECT_PLATE_JS = plate ? `
-    (function() {
-      const selectors = [
-        'input[type="text"]', 
-        'input#placa', 
-        'input#txtPlaca', 
-        'input[name*="placa" i]',
-        'input[placeholder*="placa" i]'
-      ];
-      const tryFill = () => {
-        let filled = false;
-        selectors.forEach(sel => {
-          const el = document.querySelector(sel);
-          if (el && !el.value) {
-            el.value = "${plate}";
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            el.dispatchEvent(new Event('change', { bubbles: true }));
-            filled = true;
-          }
-        });
-        return filled;
-      };
-      
-      if (!tryFill()) {
-        const observer = new MutationObserver(() => {
-          if (tryFill()) observer.disconnect();
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        setTimeout(() => observer.disconnect(), 5000);
-      }
-    })();
-  ` : '';
+  const INJECT_PLATE_JS = buildPlateFillScript(plate || '');
 
   const finalInjectedJS = `
     (function() {
@@ -99,6 +69,7 @@ export function AppWebView({
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
+      {plate && <ThemedText style={{ padding: 10 }}>Placa: {plate}. Verifica el campo del portal antes de buscar.</ThemedText>}
       <WebView
         ref={webViewRef}
         source={{ uri: url }}
@@ -106,6 +77,7 @@ export function AppWebView({
         javaScriptEnabled
         domStorageEnabled
         onLoadEnd={handleLoadEnd}
+        renderError={() => <View style={{ padding: 20 }}><ThemedText>No se pudo abrir la fuente. Verifica tu conexión y registra la incidencia.</ThemedText></View>}
         onNavigationStateChange={handleNavigationStateChange}
         style={[styles.webView, { backgroundColor }]}
         {...rest}

@@ -11,8 +11,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.brandAzul,
-        tabBarInactiveTintColor: theme.textoTitulo,
+        tabBarActiveTintColor: theme.tint,
+        tabBarInactiveTintColor: theme.textoMuted,
         tabBarStyle: {
           backgroundColor: theme.background,
           borderTopColor: 'rgba(0,0,0,0.05)',
@@ -22,11 +22,10 @@ export default function TabLayout() {
         headerStyle: {
           backgroundColor: theme.brandAzul,
         },
-        headerTintColor: theme.brandOro,
+        headerTintColor: '#FFFFFF',
         headerTitleStyle: {
-          fontWeight: '900',
-          fontSize: 16,
-          textTransform: 'uppercase',
+          fontWeight: '700',
+          fontSize: 18,
         },
       }}
     >

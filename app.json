@@ -2,13 +2,14 @@
   "expo": {
     "name": "autocar",
     "slug": "autocar",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "autocar",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.heylerjob.autocar"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +20,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.heylerjob.autocar"
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
+      "package": "com.heylerjob.autocar",
+      "versionCode": 6
     },
     "web": {
       "output": "static",
@@ -38,7 +45,24 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0"
+          }
+        }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Permite usar la c\u00e1mara para leer la placa del veh\u00edculo.",
+          "enableMicrophonePermission": false,
+          "enableFrameProcessors": true
+        }
+      ],
+      "./plugins/municipal-network"
     ],
     "experiments": {
       "typedRoutes": true,

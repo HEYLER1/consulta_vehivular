@@ -1,3 +1,4 @@
+import { usePlate } from '@/components/PlateContext';
 import React from 'react';
 import { View, StyleSheet, StatusBar } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
@@ -14,6 +15,8 @@ export default function UnifiedViewerScreen() {
     plate?: string 
   }>();
 
+  const { plate: savedPlate } = usePlate();
+  const selectedPlate = (typeof plate === 'string' ? plate : savedPlate).toUpperCase().replace(/[^A-Z0-9]/g, '');
   const config = category && slug ? APP_SITES[category]?.[slug] : null;
 
   if (!config) {
@@ -28,7 +31,7 @@ export default function UnifiedViewerScreen() {
 
   // Preparamos la URL si viene con placa (algunos portales permiten inyección por query params)
   // Aunque la mayoría requiere interacción manual o inyección JS post-carga.
-  const finalUrl = plate ? config.url.replace('{plate}', plate) : config.url;
+  const finalUrl = selectedPlate ? config.url.replace('{plate}', encodeURIComponent(selectedPlate)) : config.url;
 
   return (
     <View style={[styles.container, { backgroundColor: config.backgroundColor || '#F4F6F8' }]}>
@@ -46,6 +49,7 @@ export default function UnifiedViewerScreen() {
       <View style={styles.webViewContainer}>
         <AppWebView
           url={finalUrl}
+          plate={selectedPlate}
           injectedCSS={config.injectedCSS}
           injectedJS={config.injectedJS}
           userAgent={config.userAgent}

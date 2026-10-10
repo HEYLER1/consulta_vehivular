@@ -1,8 +1,9 @@
 import { ThemedText } from '../../components/themed-text';
 import { ThemedView } from '../../components/themed-view';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
+import { usePlate } from '@/components/PlateContext';
 import {
   ScrollView,
   StyleSheet,
@@ -10,7 +11,6 @@ import {
   View,
   StatusBar,
   useColorScheme,
-  FlatList
 } from 'react-native';
 import { PlacaVirtual } from '../../components/PlacaVirtual';
 import { Colors } from '../../constants/theme';
@@ -29,12 +29,6 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: 'office-building', title: 'Municipales', color: '#1976D2', route: '/municipales' },
 ];
 
-const RECENT_SEARCHES = [
-  { plate: 'ABC-123', date: 'Hace 5 min' },
-  { plate: 'FGH-902', date: 'Ayer' },
-  { plate: 'YUI-112', date: '20 May' },
-];
-
 const SHORTCUTS = [
   { icon: 'tools', title: 'Revisión Técnica', route: '/viewer/vehicular/citv', color: '#455A64' },
   { icon: 'gas-station', title: 'Certificado Gas', route: '/viewer/vehicular/gnv', color: '#E64A19' },
@@ -44,7 +38,7 @@ const SHORTCUTS = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [placa, setPlaca] = useState('');
+  const { plate: placa, setPlate: setPlaca } = usePlate();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'];
 
@@ -54,10 +48,7 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* ── SECCIÓN: INICIO (Header) ── */}
-        <View style={styles.header}>
-          <ThemedText style={styles.greeting}>¡Hola!</ThemedText>
-          <ThemedText style={styles.welcomeSubtitle}>Bienvenido al portal vehicular</ThemedText>
-        </View>
+
 
         {/* Buscador Central */}
         <PlacaVirtual placa={placa} onChangePlaca={setPlaca} />
@@ -79,27 +70,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
-
-        {/* ── SECCIÓN: ÚLTIMAS BÚSQUEDAS ── */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeaderRow}>
-            <ThemedText style={styles.sectionTitle}>Últimas Búsquedas</ThemedText>
-            <TouchableOpacity><ThemedText style={styles.viewAll}>Limpiar</ThemedText></TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentScroll}>
-            {RECENT_SEARCHES.map((item, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={[styles.recentCard, { backgroundColor: theme.background }]}
-                onPress={() => setPlaca(item.plate)}
-              >
-                <Ionicons name="time-outline" size={14} color="#90A4AE" />
-                <ThemedText style={styles.recentPlate}>{item.plate}</ThemedText>
-                <ThemedText style={styles.recentDate}>{item.date}</ThemedText>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
         </View>
 
         {/* ── SECCIÓN: ACCESOS DIRECTOS ── */}
@@ -124,12 +94,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={[styles.infoBanner, { backgroundColor: theme.brandAzul + '10' }]}>
-          <Ionicons name="information-circle" size={18} color={theme.brandAzul} />
-          <ThemedText style={[styles.infoText, { color: theme.brandAzul }]}>
-            La placa ingresada se usará automáticamente en todas las consultas del sistema.
-          </ThemedText>
-        </View>
+
 
       </ScrollView>
     </ThemedView>
@@ -138,22 +103,23 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
+  scrollContent: { padding: 12, paddingBottom: 24 },
   
   header: { marginBottom: 20 },
-  greeting: { fontSize: 24, fontWeight: '900', color: '#1A237E' },
+  greeting: { fontSize: 29, lineHeight: 36, fontWeight: '800' },
   welcomeSubtitle: { fontSize: 14, color: '#78909C', fontWeight: '600' },
 
-  sectionContainer: { marginBottom: 30 },
+  sectionContainer: { marginBottom: 20 },
   sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: '#455A64', marginBottom: 15 },
+  sectionTitle: { fontSize: 19, fontWeight: '800', marginBottom: 15 },
   viewAll: { fontSize: 12, color: '#1A237E', fontWeight: '700' },
 
   quickActionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   actionCard: { 
-    width: '48%', 
+    flexBasis: '46%',
+    flexGrow: 1, 
     borderRadius: 18, 
-    padding: 16, 
+    padding: 12, 
     flexDirection: 'row', 
     alignItems: 'center', 
     gap: 12,
@@ -182,7 +148,7 @@ const styles = StyleSheet.create({
   recentDate: { fontSize: 10, color: '#90A4AE' },
 
   shortcutsCard: { borderRadius: 22, overflow: 'hidden', elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6 },
-  shortcutItem: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 15 },
+  shortcutItem: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 15 },
   shortcutBorder: { borderBottomWidth: 1, borderBottomColor: '#F5F7F8' },
   shortcutIconBox: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   shortcutTitle: { fontSize: 14, fontWeight: '600' },
